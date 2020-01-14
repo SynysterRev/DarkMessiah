@@ -43,6 +43,9 @@ ADarkMessiahCharacter::ADarkMessiahCharacter()
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 	Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
 
+	/*SpellOffset = CreateDefaultSubobject<USceneComponent>(TEXT("OffsetSpell"));
+	SpellOffset->SetupAttachment(RootComponent);*/
+
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
@@ -92,11 +95,16 @@ void ADarkMessiahCharacter::BeginPlay()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 			//test
 			// spawn the projectile at the muzzle
-			FAttachmentTransformRules test(EAttachmentRule::KeepRelative, false);
-			
 			spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			spell->AttachToComponent(FP_MuzzleLocation, test);
-			//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			if (spell != nullptr)
+			{
+				FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
+				spell->AttachToComponent(FP_MuzzleLocation, attachementPawn);
+				//if (SpellOffset != nullptr)
+				//{
+				//}
+				//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			}
 		}
 	}
 }
@@ -116,7 +124,7 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::OnFire);
 
-	
+
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &ADarkMessiahCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ADarkMessiahCharacter::MoveRight);
@@ -133,7 +141,7 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void ADarkMessiahCharacter::OnFire()
 {
 	// try and fire a projectile
-	if (fireSpell != NULL)
+	/*if (fireSpell != NULL)
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
@@ -147,16 +155,23 @@ void ADarkMessiahCharacter::OnFire()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			// spawn the projectile at the muzzle
-		
+
 			//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 		}
+	}*/
+
+	if (spell != nullptr)
+	{
+		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
+		spell->DetachFromActor(detachementParam);
+		spell->LaunchSpell(GetActorForwardVector());
 	}
 
 	// try and play the sound if specified
-	if (FireSound != NULL)
+	/*if (FireSound != NULL)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
+	}*/
 
 	// try and play a firing animation if specified
 	if (FireAnimation != NULL)
