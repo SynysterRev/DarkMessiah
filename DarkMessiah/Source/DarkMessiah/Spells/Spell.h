@@ -17,8 +17,11 @@ public:
 
 protected:
 	/** Sphere collision component */
-	UPROPERTY(EditAnywhere, Category = Projectile)
+	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		class USphereComponent* CollisionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		class UProjectileMovementComponent* ProjectileMovement;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -29,5 +32,8 @@ public:
 	/** called when projectile hits something */
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+		void LaunchSpell();
 
 };
