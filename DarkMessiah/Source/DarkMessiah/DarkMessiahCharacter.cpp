@@ -92,7 +92,10 @@ void ADarkMessiahCharacter::BeginPlay()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 			//test
 			// spawn the projectile at the muzzle
+			FAttachmentTransformRules test(EAttachmentRule::KeepRelative, false);
+			
 			spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			spell->AttachToComponent(FP_MuzzleLocation, test);
 			//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 		}
 	}
