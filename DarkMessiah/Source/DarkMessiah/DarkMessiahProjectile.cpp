@@ -26,6 +26,7 @@ ADarkMessiahProjectile::ADarkMessiahProjectile()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+	
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
