@@ -48,7 +48,6 @@ void ASpell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveC
 
 void ASpell::LaunchSpell(FVector _direction)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("This is an on screen message!"));
 	GetProjectileMovement()->Velocity = _direction * m_speed;
 	SetLifeSpan(2.0f);
 }
