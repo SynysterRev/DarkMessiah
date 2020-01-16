@@ -43,4 +43,6 @@ public:
 		void LaunchSpell(FVector _direction);
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
+	FORCEINLINE class USphereComponent* GetSphereComponent() const { return CollisionComp; }
+
 };

@@ -44,7 +44,7 @@ ADarkMessiahCharacter::ADarkMessiahCharacter()
 	Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
 
 	SpellOffset = CreateDefaultSubobject<USceneComponent>(TEXT("OffsetSpell"));
-	SpellOffset->SetupAttachment(FirstPersonCameraComponent);
+	SpellOffset->SetupAttachment(Mesh1P);
 
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
@@ -158,16 +158,11 @@ void ADarkMessiahCharacter::CreateFireBall()
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 				//test
 				// spawn the projectile at the muzzle
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Some variable values: x: %f, y: %f, z: %f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
 				spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
 				if (spell != nullptr)
 				{
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
 					spell->AttachToComponent(SpellOffset, attachementPawn);
-					//if (SpellOffset != nullptr)
-					//{
-					//}
-					//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 				}
 			}
 		}

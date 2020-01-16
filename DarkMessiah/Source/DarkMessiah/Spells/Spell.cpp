@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include <Engine/Engine.h>
+#include "DarkMessiahCharacter.h"
 
 // Sets default values
 ASpell::ASpell()
@@ -13,8 +14,7 @@ ASpell::ASpell()
 	PrimaryActorTick.bCanEverTick = false;
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	CollisionComp->InitSphereRadius(5.0f);
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));	
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 	ProjectileMovement->InitialSpeed = 0.0f;
@@ -37,16 +37,16 @@ void ASpell::Tick(float DeltaTime)
 
 void ASpell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor != nullptr && OtherActor != this)
+	if (OtherActor != nullptr && OtherActor != this && Cast<ADarkMessiahCharacter>(OtherActor) == nullptr)
 	{
-
+		Destroy();
 	}
-	Destroy();
 }
 
 void ASpell::LaunchSpell(FVector _direction)
 {
 	GetProjectileMovement()->Velocity = _direction * m_speed;
 	SetLifeSpan(2.0f);
+	GetSphereComponent()->SetCollisionProfileName(TEXT("Projectile"));
 	CollisionComp->OnComponentHit.AddDynamic(this, &ASpell::OnHit);		// set up a notification for when this component hits something blocking
 }
