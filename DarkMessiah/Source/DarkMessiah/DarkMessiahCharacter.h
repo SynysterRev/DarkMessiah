@@ -48,6 +48,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector GunOffset;
 
+	/** Gun muzzle's offset from the characters location */
+	/*UPROPERTY(VisibleDefaultsOnly, Category = Gameplay)
+		class USceneComponent* SpellOffset;*/
+
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class ADarkMessiahProjectile> ProjectileClass;
@@ -71,11 +75,18 @@ protected:
 	/** Fires a projectile. */
 	void OnFire();
 
+	void CreateFireBall();
+
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
 
 	/** Handles stafing movement, left and right */
 	void MoveRight(float Val);
+
+	FTimerHandle m_timerSpawnFireBall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float m_CDSpawnFireBall;
 
 	/**
 	 * Called via input to turn at a given rate.
