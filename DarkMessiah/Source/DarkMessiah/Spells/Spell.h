@@ -28,6 +28,13 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		float m_maxSpeed;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		float m_radiusExplosion;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		float m_strength;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 

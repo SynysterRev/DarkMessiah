@@ -39,6 +39,7 @@ void ASpell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveC
 {
 	if (OtherActor != nullptr && OtherActor != this && Cast<ADarkMessiahCharacter>(OtherActor) == nullptr)
 	{
+		OtherComp->AddRadialImpulse(Hit.Location, m_radiusExplosion, m_strength, ERadialImpulseFalloff::RIF_Constant, true);
 		Destroy();
 	}
 }
