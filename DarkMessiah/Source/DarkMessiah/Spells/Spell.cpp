@@ -10,7 +10,7 @@
 ASpell::ASpell()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
@@ -26,8 +26,6 @@ ASpell::ASpell()
 void ASpell::BeginPlay()
 {
 	Super::BeginPlay();
-
-	CollisionComp->OnComponentHit.AddDynamic(this, &ASpell::OnHit);		// set up a notification for when this component hits something blocking
 }
 
 // Called every frame
@@ -50,5 +48,6 @@ void ASpell::LaunchSpell(FVector _direction)
 {
 	GetProjectileMovement()->Velocity = _direction * m_speed;
 	SetLifeSpan(2.0f);
+	CollisionComp->OnComponentHit.AddDynamic(this, &ASpell::OnHit);		// set up a notification for when this component hits something blocking
 }
 
