@@ -49,8 +49,8 @@ public:
 	FVector GunOffset;
 
 	/** Gun muzzle's offset from the characters location */
-	/*UPROPERTY(VisibleDefaultsOnly, Category = Gameplay)
-		class USceneComponent* SpellOffset;*/
+	UPROPERTY(VisibleDefaultsOnly, Category = Gameplay)
+		class USceneComponent* SpellOffset;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
