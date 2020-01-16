@@ -50,4 +50,3 @@ void ASpell::LaunchSpell(FVector _direction)
 	SetLifeSpan(2.0f);
 	CollisionComp->OnComponentHit.AddDynamic(this, &ASpell::OnHit);		// set up a notification for when this component hits something blocking
 }
-

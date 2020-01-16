@@ -71,7 +71,7 @@ public:
 
 
 protected:
-	
+
 	/** Fires a projectile. */
 	void OnFire();
 
@@ -112,4 +112,3 @@ public:
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 };
-
