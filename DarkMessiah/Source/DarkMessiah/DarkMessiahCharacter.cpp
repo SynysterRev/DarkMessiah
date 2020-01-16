@@ -43,8 +43,8 @@ ADarkMessiahCharacter::ADarkMessiahCharacter()
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 	Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
 
-	/*SpellOffset = CreateDefaultSubobject<USceneComponent>(TEXT("OffsetSpell"));
-	SpellOffset->SetupAttachment(RootComponent);*/
+	SpellOffset = CreateDefaultSubobject<USceneComponent>(TEXT("OffsetSpell"));
+	SpellOffset->SetupAttachment(FirstPersonCameraComponent);
 
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
@@ -148,23 +148,27 @@ void ADarkMessiahCharacter::CreateFireBall()
 		if (World != NULL)
 		{
 			const FRotator SpawnRotation = GetControlRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-
-			//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-			//test
-			// spawn the projectile at the muzzle
-			spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			if (spell != nullptr)
+			if (SpellOffset != nullptr)
 			{
-				FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
-				spell->AttachToComponent(FP_MuzzleLocation, attachementPawn);
-				//if (SpellOffset != nullptr)
-				//{
-				//}
-				//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+				const FVector SpawnLocation = SpellOffset->GetComponentLocation();
+
+				//Set Spawn Collision Handling Override
+				FActorSpawnParameters ActorSpawnParams;
+				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+				//test
+				// spawn the projectile at the muzzle
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Some variable values: x: %f, y: %f, z: %f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z));
+				spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				if (spell != nullptr)
+				{
+					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
+					spell->AttachToComponent(SpellOffset, attachementPawn);
+					//if (SpellOffset != nullptr)
+					//{
+					//}
+					//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				}
 			}
 		}
 	}
