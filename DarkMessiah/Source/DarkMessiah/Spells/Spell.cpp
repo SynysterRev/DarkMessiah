@@ -4,6 +4,7 @@
 #include "Spell.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include <Engine/Engine.h>
 
 // Sets default values
 ASpell::ASpell()
@@ -13,7 +14,11 @@ ASpell::ASpell()
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
-
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	ProjectileMovement->UpdatedComponent = CollisionComp;
+	ProjectileMovement->ProjectileGravityScale = 0.0f;
+	ProjectileMovement->InitialSpeed = 0.0f;
+	ProjectileMovement->MaxSpeed = m_maxSpeed;
 	RootComponent = CollisionComp;
 }
 
@@ -22,6 +27,7 @@ void ASpell::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CollisionComp->OnComponentHit.AddDynamic(this, &ASpell::OnHit);		// set up a notification for when this component hits something blocking
 }
 
 // Called every frame
@@ -40,10 +46,8 @@ void ASpell::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveC
 	Destroy();
 }
 
-void ASpell::LaunchSpell()
+void ASpell::LaunchSpell(FVector _direction)
 {
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	ProjectileMovement->UpdatedComponent = CollisionComp;
-	CollisionComp->OnComponentHit.AddDynamic(this, &ASpell::OnHit);		// set up a notification for when this component hits something blocking
+	GetProjectileMovement()->Velocity = _direction * m_speed;
 	SetLifeSpan(2.0f);
 }

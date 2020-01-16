@@ -43,6 +43,9 @@ ADarkMessiahCharacter::ADarkMessiahCharacter()
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 	Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
 
+	/*SpellOffset = CreateDefaultSubobject<USceneComponent>(TEXT("OffsetSpell"));
+	SpellOffset->SetupAttachment(RootComponent);*/
+
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
@@ -78,24 +81,7 @@ void ADarkMessiahCharacter::BeginPlay()
 	Mesh1P->SetHiddenInGame(false, true);
 
 	// try and fire a projectile
-	if (fireSpell != NULL)
-	{
-		UWorld* const World = GetWorld();
-		if (World != NULL)
-		{
-			const FRotator SpawnRotation = GetControlRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-
-			//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-			//test
-			// spawn the projectile at the muzzle
-			spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-		}
-	}
+	CreateFireBall();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -129,8 +115,34 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 void ADarkMessiahCharacter::OnFire()
 {
-	// try and fire a projectile
-	if (fireSpell != NULL)
+	if (spell != nullptr)
+	{
+		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
+		spell->DetachFromActor(detachementParam);
+		spell->LaunchSpell(FirstPersonCameraComponent->GetForwardVector());
+		spell = nullptr;
+		if (UWorld* world = GetWorld())
+		{
+			world->GetTimerManager().SetTimer(m_timerSpawnFireBall, this, &ADarkMessiahCharacter::CreateFireBall, m_CDSpawnFireBall, false);
+		}
+	}
+
+
+	// try and play a firing animation if specified
+	if (FireAnimation != NULL)
+	{
+		// Get the animation object for the arms mesh
+		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		if (AnimInstance != NULL)
+		{
+			AnimInstance->Montage_Play(FireAnimation, 1.f);
+		}
+	}
+}
+
+void ADarkMessiahCharacter::CreateFireBall()
+{
+	if (fireSpell != NULL && spell == nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
@@ -142,27 +154,18 @@ void ADarkMessiahCharacter::OnFire()
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
+			//test
 			// spawn the projectile at the muzzle
-
-			//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-		}
-	}
-
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
+			spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			if (spell != nullptr)
+			{
+				FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
+				spell->AttachToComponent(FP_MuzzleLocation, attachementPawn);
+				//if (SpellOffset != nullptr)
+				//{
+				//}
+				//World->SpawnActor<ADarkMessiahProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			}
 		}
 	}
 }
