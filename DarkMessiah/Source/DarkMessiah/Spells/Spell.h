@@ -24,16 +24,16 @@ protected:
 		class UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float m_speed;
+		float Speed;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float m_maxSpeed;
+		float MaxSpeed;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float m_radiusExplosion;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float RadiusExplosion;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float m_strength;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float Strength;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -43,8 +43,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** called when projectile hits something */
-	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	/*UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);*/
 
 	UFUNCTION(BlueprintCallable)
 		void LaunchSpell(FVector _direction);
