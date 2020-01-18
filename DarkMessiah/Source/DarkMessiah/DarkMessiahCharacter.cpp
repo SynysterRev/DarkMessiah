@@ -97,7 +97,7 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::OnFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ADarkMessiahCharacter::OnFire);
 
 
 	// Bind movement events
