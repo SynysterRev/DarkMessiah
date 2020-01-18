@@ -35,6 +35,32 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 		float Strength;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		FVector  MaxScale;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		FVector  AddingScale;
+
+	UPROPERTY()
+		float PowerMultiplicator;
+
+	UPROPERTY()
+		float CurrentPowerMultiplicator;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float MaxPowerMultiplicator;
+
+	UPROPERTY()
+		FVector CurrentScale;
+
+	UPROPERTY()
+		FVector CurrentLocation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float TimerIncrease;
+
+	FTimerHandle TimerPreparation;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -48,6 +74,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void LaunchSpell(FVector _direction);
+	UFUNCTION()
+		void PrepareLaunch();
+	UFUNCTION()
+		void IncreasePower();
+
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 	FORCEINLINE class USphereComponent* GetSphereComponent() const { return CollisionComp; }

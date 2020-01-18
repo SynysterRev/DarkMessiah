@@ -97,6 +97,7 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::TestFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ADarkMessiahCharacter::OnFire);
 
 
@@ -197,4 +198,12 @@ void ADarkMessiahCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ADarkMessiahCharacter::TestFire()
+{
+	if (spell != nullptr)
+	{
+		spell->PrepareLaunch();
+	}
 }
