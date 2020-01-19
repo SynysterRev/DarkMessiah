@@ -100,6 +100,8 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	void TestFire();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;

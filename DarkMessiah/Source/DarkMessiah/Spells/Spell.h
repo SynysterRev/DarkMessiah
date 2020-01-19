@@ -24,10 +24,43 @@ protected:
 		class UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float m_speed;
+		float Speed;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float m_maxSpeed;
+		float MaxSpeed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float RadiusExplosion;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float Strength;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		FVector  MaxScale;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		FVector  AddingScale;
+
+	UPROPERTY()
+		float PowerMultiplicator;
+
+	UPROPERTY()
+		float CurrentPowerMultiplicator;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float MaxPowerMultiplicator;
+
+	UPROPERTY()
+		FVector CurrentScale;
+
+	UPROPERTY()
+		FVector CurrentLocation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float TimerIncrease;
+
+	FTimerHandle TimerPreparation;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -36,11 +69,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** called when projectile hits something */
-	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	/*UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);*/
 
 	UFUNCTION(BlueprintCallable)
 		void LaunchSpell(FVector _direction);
+	UFUNCTION()
+		void PrepareLaunch();
+	UFUNCTION()
+		void IncreasePower();
+
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 	FORCEINLINE class USphereComponent* GetSphereComponent() const { return CollisionComp; }
