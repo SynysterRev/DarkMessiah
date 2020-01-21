@@ -100,7 +100,7 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-	void TestFire();
+	void PrepareFire();
 
 protected:
 	// APawn interface

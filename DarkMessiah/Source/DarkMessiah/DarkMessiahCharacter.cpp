@@ -13,6 +13,7 @@
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include <Engine/Engine.h>
+#include "Spells/FireBall.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -79,7 +80,6 @@ void ADarkMessiahCharacter::BeginPlay()
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
-
 	// try and fire a projectile
 	CreateFireBall();
 }
@@ -97,7 +97,7 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::TestFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::PrepareFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ADarkMessiahCharacter::OnFire);
 
 
@@ -160,6 +160,7 @@ void ADarkMessiahCharacter::CreateFireBall()
 				//test
 				// spawn the projectile at the muzzle
 				spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				spell = static_cast<AFireBall*>(spell);
 				if (spell != nullptr)
 				{
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
@@ -200,10 +201,10 @@ void ADarkMessiahCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void ADarkMessiahCharacter::TestFire()
+void ADarkMessiahCharacter::PrepareFire()
 {
 	if (spell != nullptr)
 	{
-		spell->PrepareLaunch();
+		spell->PrepareSpell();
 	}
 }
