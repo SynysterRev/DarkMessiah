@@ -37,6 +37,8 @@ public :
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		class UProjectileMovementComponent* ProjectileMovement;
+
+	void Blblbl();
 private :
 	/** Sphere collision component */
 	UPROPERTY(VisibleAnywhere, Category = Projectile)

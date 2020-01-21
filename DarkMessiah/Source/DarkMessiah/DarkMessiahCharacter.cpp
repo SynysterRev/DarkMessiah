@@ -118,9 +118,11 @@ void ADarkMessiahCharacter::OnFire()
 {
 	if (spell != nullptr)
 	{
+		FVector pointFarAway = FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 9000.0f;
+		FVector direction = (pointFarAway - spell->GetActorLocation()).GetSafeNormal();
 		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
 		spell->DetachFromActor(detachementParam);
-		spell->LaunchSpell(FirstPersonCameraComponent->GetForwardVector());
+		spell->LaunchSpell(direction);
 		spell = nullptr;
 		if (UWorld* world = GetWorld())
 		{
@@ -143,7 +145,7 @@ void ADarkMessiahCharacter::OnFire()
 
 void ADarkMessiahCharacter::CreateFireBall()
 {
-	if (fireSpell != NULL && spell == nullptr)
+	if (FireSpell != NULL && spell == nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
@@ -159,8 +161,8 @@ void ADarkMessiahCharacter::CreateFireBall()
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 				//test
 				// spawn the projectile at the muzzle
-				spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
-				spell = static_cast<AFireBall*>(spell);
+				spell = World->SpawnActor<AFireBall>(FireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				//spell = static_cast<AFireBall*>(spell);
 				if (spell != nullptr)
 				{
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);

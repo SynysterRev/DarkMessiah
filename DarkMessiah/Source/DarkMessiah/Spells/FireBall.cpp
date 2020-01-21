@@ -7,6 +7,7 @@
 #include <Engine/Engine.h>
 #include "DarkMessiahCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Helpers/HelperLibrary.h"
 
 
 AFireBall::AFireBall()
@@ -22,6 +23,10 @@ AFireBall::AFireBall()
 	PowerMultiplicator = 1.0f;
 	CurrentPowerMultiplicator = PowerMultiplicator;
 	RootComponent = CollisionComp;
+}
+
+void AFireBall::Blblbl()
+{
 }
 
 void AFireBall::IncreasePower()

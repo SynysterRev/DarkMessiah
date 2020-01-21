@@ -51,13 +51,9 @@ public:
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(VisibleDefaultsOnly, Category = Gameplay)
 		class USceneComponent* SpellOffset;
-
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class ADarkMessiahProjectile> ProjectileClass;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	TSubclassOf<class ASpell> fireSpell;
+	TSubclassOf<class AFireBall> FireSpell;
 
 	class ASpell* spell;
 
