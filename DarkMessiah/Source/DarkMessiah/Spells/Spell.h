@@ -6,11 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "Spell.generated.h"
 
+
+
+
 UCLASS()
 class DARKMESSIAH_API ASpell : public AActor
 {
 	GENERATED_BODY()
-
 public:
 
 protected:
@@ -41,5 +43,8 @@ public:
 
 	UFUNCTION()
 		virtual void PrepareSpell();
+
+	UFUNCTION()
+		virtual void DestroySpell();
 
 };

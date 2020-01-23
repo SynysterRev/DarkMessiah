@@ -22,4 +22,9 @@ void ASpell::PrepareSpell()
 {
 }
 
+void ASpell::DestroySpell()
+{
+	Destroy();
+}
+
 

@@ -9,7 +9,6 @@
 /**
  * 
  */
-class ASpell;
 UCLASS()
 class DARKMESSIAH_API AFireBall : public ASpell
 {
@@ -19,37 +18,37 @@ class DARKMESSIAH_API AFireBall : public ASpell
 
 public :
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		float TimerIncrease;
+	float TimerIncrease;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		float MaxPowerMultiplicator;
+	float MaxPowerMultiplicator;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		FVector  MaxScale;
+	FVector MaxScale;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		FVector  AddingScale;
+	FVector AddingScale;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		float RadiusExplosion;
+	float RadiusExplosion;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		float Strength;
+	float Strength;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-		class UProjectileMovementComponent* ProjectileMovement;
+	class UProjectileMovementComponent* ProjectileMovement;
 
-	void Blblbl();
 private :
 	/** Sphere collision component */
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
 		class USphereComponent* CollisionComp;
 	UPROPERTY()
-		float PowerMultiplicator;
+	float PowerMultiplicator;
 	UPROPERTY()
-		float CurrentPowerMultiplicator;
+	float CurrentPowerMultiplicator;
+
 	FTimerHandle TimerPreparation;
 	UFUNCTION()
-		void IncreasePower();
+	void IncreasePower();
 	void LaunchSpell(FVector _direction) override;
 	void PrepareSpell() override;
 

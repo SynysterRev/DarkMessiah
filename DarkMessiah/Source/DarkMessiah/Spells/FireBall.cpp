@@ -4,7 +4,7 @@
 #include "FireBall.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include <Engine/Engine.h>
+#include "Engine/Engine.h"
 #include "DarkMessiahCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Helpers/HelperLibrary.h"
@@ -23,10 +23,6 @@ AFireBall::AFireBall()
 	PowerMultiplicator = 1.0f;
 	CurrentPowerMultiplicator = PowerMultiplicator;
 	RootComponent = CollisionComp;
-}
-
-void AFireBall::Blblbl()
-{
 }
 
 void AFireBall::IncreasePower()

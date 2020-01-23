@@ -8,6 +8,13 @@
 
 class UInputComponent;
 
+UENUM()
+enum class ETypeSpell
+{
+	FireBall UMETA(DisplayName = "FireBall"),
+	IceSpike UMETA(DisplayName = "IceSpike")
+};
+
 UCLASS(config=Game)
 class ADarkMessiahCharacter : public ACharacter
 {
@@ -28,6 +35,8 @@ class ADarkMessiahCharacter : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
+
+	ETypeSpell TypeSpell;
 
 public:
 	ADarkMessiahCharacter();
@@ -50,10 +59,13 @@ public:
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(VisibleDefaultsOnly, Category = Gameplay)
-		class USceneComponent* SpellOffset;
+	class USceneComponent* SpellOffset;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AFireBall> FireSpell;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class AIceSpike> IceSpell;
 
 	class ASpell* spell;
 
@@ -71,7 +83,7 @@ protected:
 	/** Fires a projectile. */
 	void OnFire();
 
-	void CreateFireBall();
+	void CreateLaunchingSpell();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -82,7 +94,7 @@ protected:
 	FTimerHandle m_timerSpawnFireBall;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float m_CDSpawnFireBall;
+	float CDSpawnSpell;
 
 	/**
 	 * Called via input to turn at a given rate.
@@ -97,6 +109,12 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	void PrepareFire();
+
+	void ChangeSpell1();
+
+	void ChangeSpell2();
+
+	void ClearSpell();
 
 protected:
 	// APawn interface
