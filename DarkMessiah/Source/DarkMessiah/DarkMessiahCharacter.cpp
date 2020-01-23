@@ -10,6 +10,7 @@
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "Engine/Engine.h"
@@ -155,17 +156,17 @@ void ADarkMessiahCharacter::CreateLaunchingSpell()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			const FRotator SpawnRotation = GetControlRotation();
+			FRotator SpawnRotation = GetControlRotation();
 			if (SpellOffset != nullptr)
 			{
 				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 				const FVector SpawnLocation = SpellOffset->GetComponentLocation();
 				//Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
-				
+
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 				// spawn the projectile at the muzzle
-				
+
 				if (TypeSpell == ETypeSpell::FireBall)
 					spell = World->SpawnActor<AFireBall>(FireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
 
@@ -178,6 +179,7 @@ void ADarkMessiahCharacter::CreateLaunchingSpell()
 				{
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
 					spell->AttachToComponent(SpellOffset, attachementPawn);
+					spell->InitSpell();
 				}
 			}
 		}

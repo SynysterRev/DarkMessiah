@@ -20,9 +20,16 @@ public :
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
+
 	void LaunchSpell(FVector _direction) override;
+
+	void InitSpell() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Projectile)
 	class UStaticMeshComponent* Mesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Projectile)
+		class USceneComponent* sceneComp;
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
 	class UCapsuleComponent* CollisionComp;
