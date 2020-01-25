@@ -10,9 +10,13 @@
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
-#include <Engine/Engine.h>
+#include "Engine/Engine.h"
+#include "Spells/FireBall.h"
+#include "Spells/IceSpike.h"
+#include "Helpers/HelperLibrary.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -79,9 +83,9 @@ void ADarkMessiahCharacter::BeginPlay()
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
-
 	// try and fire a projectile
-	CreateFireBall();
+	TypeSpell = ETypeSpell::FireBall;
+	CreateLaunchingSpell();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,8 +101,10 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::TestFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::PrepareFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ADarkMessiahCharacter::OnFire);
+	PlayerInputComponent->BindAction("SelectSpell1", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell1);
+	PlayerInputComponent->BindAction("SelectSpell2", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell2);
 
 
 	// Bind movement events
@@ -118,13 +124,15 @@ void ADarkMessiahCharacter::OnFire()
 {
 	if (spell != nullptr)
 	{
+		FVector pointFarAway = FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 5000.0f;
+		FVector direction = (pointFarAway - spell->GetActorLocation()).GetSafeNormal();
 		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
 		spell->DetachFromActor(detachementParam);
-		spell->LaunchSpell(FirstPersonCameraComponent->GetForwardVector());
+		spell->LaunchSpell(direction);
 		spell = nullptr;
 		if (UWorld* world = GetWorld())
 		{
-			world->GetTimerManager().SetTimer(m_timerSpawnFireBall, this, &ADarkMessiahCharacter::CreateFireBall, m_CDSpawnFireBall, false);
+			world->GetTimerManager().SetTimer(m_timerSpawnFireBall, this, &ADarkMessiahCharacter::CreateLaunchingSpell, CDSpawnSpell, false);
 		}
 	}
 
@@ -141,29 +149,37 @@ void ADarkMessiahCharacter::OnFire()
 	}
 }
 
-void ADarkMessiahCharacter::CreateFireBall()
+void ADarkMessiahCharacter::CreateLaunchingSpell()
 {
-	if (fireSpell != NULL && spell == nullptr)
+	if (FireSpell != NULL && spell == nullptr && IceSpell != NULL)
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			const FRotator SpawnRotation = GetControlRotation();
+			FRotator SpawnRotation = GetControlRotation();
 			if (SpellOffset != nullptr)
 			{
 				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 				const FVector SpawnLocation = SpellOffset->GetComponentLocation();
-
 				//Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
+
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-				//test
 				// spawn the projectile at the muzzle
-				spell = World->SpawnActor<ASpell>(fireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+				if (TypeSpell == ETypeSpell::FireBall)
+					spell = World->SpawnActor<AFireBall>(FireSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+				else if (TypeSpell == ETypeSpell::IceSpike)
+				{
+					spell = World->SpawnActor<AIceSpike>(IceSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				}
+				//spell = static_cast<AFireBall*>(spell);
 				if (spell != nullptr)
 				{
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
 					spell->AttachToComponent(SpellOffset, attachementPawn);
+					spell->InitSpell();
 				}
 			}
 		}
@@ -200,10 +216,41 @@ void ADarkMessiahCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void ADarkMessiahCharacter::TestFire()
+void ADarkMessiahCharacter::PrepareFire()
 {
 	if (spell != nullptr)
 	{
-		spell->PrepareLaunch();
+		spell->PrepareSpell();
+	}
+}
+
+void ADarkMessiahCharacter::ChangeSpell1()
+{
+	if (TypeSpell != ETypeSpell::FireBall)
+	{
+		TypeSpell = ETypeSpell::FireBall;
+		ClearSpell();
+		CreateLaunchingSpell();
+	}
+}
+
+void ADarkMessiahCharacter::ChangeSpell2()
+{
+	if (TypeSpell != ETypeSpell::IceSpike)
+	{
+		TypeSpell = ETypeSpell::IceSpike;
+		ClearSpell();
+		CreateLaunchingSpell();
+	}
+}
+
+void ADarkMessiahCharacter::ClearSpell()
+{
+	if (spell != nullptr)
+	{
+		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
+		spell->DetachFromActor(detachementParam);
+		spell->DestroySpell();
+		spell = nullptr;
 	}
 }
