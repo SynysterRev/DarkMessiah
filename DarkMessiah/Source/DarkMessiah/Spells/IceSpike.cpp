@@ -13,14 +13,14 @@ AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("Test"));
 	RootComponent = sceneComp;
 	Mesh = _objectInit.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("MESH"));
-	Mesh->SetupAttachment(RootComponent);
 	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp")); 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	ProjectileMovement->UpdatedComponent = Mesh;
+	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 	ProjectileMovement->InitialSpeed = 0.0f;
 	ProjectileMovement->MaxSpeed = MaxSpeed;
-	CollisionComp->SetupAttachment(Mesh);
+	CollisionComp->SetupAttachment(RootComponent);
+	Mesh->SetupAttachment(CollisionComp);
 }
 
 
@@ -28,10 +28,10 @@ void AIceSpike::LaunchSpell(FVector _direction)
 {
 	GetProjectileMovement()->Velocity = _direction * Speed;
 	SetLifeSpan(2.0f);
-	GetMesh()->SetCollisionProfileName(TEXT("Projectile"));
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Projectile"));
 }
 
 void AIceSpike::InitSpell()
 {
-	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+
 }
