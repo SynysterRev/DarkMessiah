@@ -3,6 +3,8 @@
 
 #include "CharacterAI.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 ACharacterAI::ACharacterAI()
@@ -20,7 +22,22 @@ ACharacterAI::ACharacterAI()
 void ACharacterAI::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	IsRagdollActivate = false;
+}
+
+void ACharacterAI::ActivateRagDoll()
+{
+	if (!IsRagdollActivate)
+	{
+		GetCharacterMovement()->DisableMovement();
+		/*if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+		{
+			CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+		}*/
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetAllBodiesSimulatePhysics(true);
+	}
 }
 
 // Called every frame
