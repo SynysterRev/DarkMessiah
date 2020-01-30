@@ -10,7 +10,7 @@
 
 AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 {
-	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("Test"));
+	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = sceneComp;
 	Mesh = _objectInit.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("MESH"));
 	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp")); 
