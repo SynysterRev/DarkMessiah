@@ -32,11 +32,11 @@ void ACharacterAI::ActivateRagDoll()
 		GetCharacterMovement()->StopMovementImmediately();
 		if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 		{
-			CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+			CapsuleComp->DestroyComponent();
 		}
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		GetMesh()->SetAllBodiesSimulatePhysics(true);
+		//GetMesh()->SetAllBodiesSimulatePhysics(true);
+		GetMesh()->SetSimulatePhysics(true);
 		IsRagdollActivate = true;
 	}
 }
