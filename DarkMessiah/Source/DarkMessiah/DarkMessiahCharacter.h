@@ -36,6 +36,9 @@ class ADarkMessiahCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
+	class UHealthComponent* HealthComponent;
+
 	ETypeSpell TypeSpell;
 
 public:
@@ -126,5 +129,7 @@ public:
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 };
