@@ -7,6 +7,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Helpers/HelperLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Actor.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 {
@@ -34,4 +36,26 @@ void AIceSpike::LaunchSpell(FVector _direction)
 void AIceSpike::InitSpell()
 {
 
+}
+
+void AIceSpike::ImpaleActor(const FHitResult& _hitResult)
+{
+	if (UWorld* world = GetWorld())
+	{
+		FVector direction;
+		FVector readjustPosition;
+		//spawn an actor with PhysicsConstraint to stuck pawn in a wall
+		ImpalementActor = world->SpawnActor<UPhysicsConstraintComponent>(Impalement);
+		FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
+		ImpalementActor->AttachToComponent(_hitResult.GetComponent(), attachementToActor, _hitResult.BoneName);
+
+		//readjust position of pawn to avoid it to thrill in the wall
+		direction = (GetActorLocation() - _hitResult.ImpactPoint);
+		direction /= direction.Size();
+		readjustPosition = _hitResult.ImpactPoint + direction * 5.0f;
+		SetActorLocation(readjustPosition);
+
+		SetLifeSpan(10.0f);
+
+	}
 }

@@ -27,14 +27,23 @@ public :
 	FORCEINLINE class UCapsuleComponent* GetCapsuleComponent() const { return CollisionComp; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
+protected:
+	UFUNCTION(BlueprintCallable)
+	void ImpaleActor(const FHitResult& _hitResult);
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UPhysicsConstraintComponent> Impalement;
 private:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
-		class UStaticMeshComponent* Mesh;
+	class UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
-		class USceneComponent* sceneComp;
+	class USceneComponent* sceneComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	class UCapsuleComponent* CollisionComp;
+
+	UPhysicsConstraintComponent* ImpalementActor;
 
 };
