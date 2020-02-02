@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "HealthComponent.h"
+#include "Helpers/HelperLibrary.h"
 
 // Sets default values
 ACharacterAI::ACharacterAI()
@@ -23,6 +25,7 @@ void ACharacterAI::BeginPlay()
 {
 	Super::BeginPlay();
 	IsRagdollActivate = false;
+	HealthComponent = FindComponentByClass<UHealthComponent>();
 }
 
 void ACharacterAI::ActivateRagDoll()
@@ -39,6 +42,25 @@ void ACharacterAI::ActivateRagDoll()
 		GetMesh()->SetSimulatePhysics(true);
 		IsRagdollActivate = true;
 	}
+}
+
+float ACharacterAI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// Call the base class - this will tell us how much damage to apply  
+	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	if (HealthComponent->IsCharacterDead())
+	{
+		return 0.0f;
+	}
+	if (ActualDamage > 0.0f)
+	{
+		HealthComponent->InflictDamage(ActualDamage);
+		if (HealthComponent->IsCharacterDead())
+		{
+			ActivateRagDoll();
+		}
+	}
+	return ActualDamage;
 }
 
 // Called every frame

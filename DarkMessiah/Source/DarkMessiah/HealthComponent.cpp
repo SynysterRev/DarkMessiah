@@ -29,7 +29,6 @@ void UHealthComponent::InflictDamage(int32 _damage)
 	if (!IsDead)
 	{
 		Health = FMath::Clamp(Health - _damage, 0, MaxHealth);
-		Event_InflictDamageBP(_damage);
 		if (Health <= 0.0f)
 		{
 			IsDead = true;

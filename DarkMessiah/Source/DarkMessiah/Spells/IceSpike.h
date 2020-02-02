@@ -29,7 +29,7 @@ public :
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	void ImpaleActor(const FHitResult& _hitResult);
+	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult);
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UPhysicsConstraintComponent> Impalement;

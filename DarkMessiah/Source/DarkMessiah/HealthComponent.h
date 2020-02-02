@@ -29,18 +29,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE int32 GetMaxLife() { return MaxHealth; }
 
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool IsCharacterDead() { return IsDead; }
 
-	UFUNCTION(BlueprintCallable)
-	void InflictDamage(int32 _damage);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void Event_InflictDamageBP(int32 _damage);
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UFUNCTION(BlueprintCallable)
+	void InflictDamage(int32 _damage);	
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool IsCharacterDead() { return IsDead; }
 
 private :
 	int32 Health;

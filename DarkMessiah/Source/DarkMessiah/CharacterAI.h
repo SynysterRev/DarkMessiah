@@ -11,6 +11,8 @@ class DARKMESSIAH_API ACharacterAI : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
+		class UHealthComponent* HealthComponent;
 public:
 	// Sets default values for this character's properties
 	ACharacterAI();
@@ -25,11 +27,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool IsRagdollActivate;
 
+	UFUNCTION(BlueprintCallable)
+	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 };

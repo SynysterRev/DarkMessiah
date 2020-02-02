@@ -38,7 +38,7 @@ void AIceSpike::InitSpell()
 
 }
 
-void AIceSpike::ImpaleActor(const FHitResult& _hitResult)
+void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult)
 {
 	if (UWorld* world = GetWorld())
 	{
@@ -46,16 +46,22 @@ void AIceSpike::ImpaleActor(const FHitResult& _hitResult)
 		FVector readjustPosition;
 		//spawn an actor with PhysicsConstraint to stuck pawn in a wall
 		ImpalementActor = world->SpawnActor<UPhysicsConstraintComponent>(Impalement);
-		FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
-		ImpalementActor->AttachToComponent(_hitResult.GetComponent(), attachementToActor, _hitResult.BoneName);
+		if (ImpalementActor != nullptr)
+		{
+			FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
+			ImpalementActor->AttachToComponent(_hitPawnResult.GetComponent(), attachementToActor, _hitPawnResult.BoneName);
 
-		//readjust position of pawn to avoid it to thrill in the wall
-		direction = (GetActorLocation() - _hitResult.ImpactPoint);
-		direction /= direction.Size();
-		readjustPosition = _hitResult.ImpactPoint + direction * 5.0f;
-		SetActorLocation(readjustPosition);
+			//readjust position of pawn to avoid it to thrill in the wall
+			direction = (GetActorLocation() - _hitStaticResult.ImpactPoint);
+			direction /= direction.Size();
+			readjustPosition = _hitStaticResult.ImpactPoint + direction * 5.0f;
+			SetActorLocation(readjustPosition);
 
-		SetLifeSpan(10.0f);
+			SetLifeSpan(10.0f);
 
+			//place the physics constraint on the wall to keep player stuck to the wall
+			ImpalementActor->SetWorldLocation(_hitStaticResult.ImpactPoint);
+			ImpalementActor->SetConstrainedComponents(_hitStaticResult.GetComponent(), _hitStaticResult.BoneName, _hitPawnResult.GetComponent(), _hitPawnResult.BoneName);
+		}
 	}
 }
