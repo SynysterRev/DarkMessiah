@@ -120,6 +120,10 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ADarkMessiahCharacter::LookUpAtRate);
 }
 
+void ADarkMessiahCharacter::OnFireSpell_Implementation(ASpell* _spell)
+{
+}
+
 void ADarkMessiahCharacter::OnFire()
 {
 	if (spell != nullptr)
@@ -129,6 +133,7 @@ void ADarkMessiahCharacter::OnFire()
 		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
 		spell->DetachFromActor(detachementParam);
 		spell->LaunchSpell(direction);
+		OnFireSpell(spell);
 		spell = nullptr;
 		if (UWorld* world = GetWorld())
 		{

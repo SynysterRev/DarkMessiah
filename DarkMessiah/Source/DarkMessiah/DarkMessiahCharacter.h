@@ -77,6 +77,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Power Event")
+	void OnFireSpell(class ASpell* _spell);
+	void OnFireSpell_Implementation(class ASpell* _spell);
 
 protected:
 
