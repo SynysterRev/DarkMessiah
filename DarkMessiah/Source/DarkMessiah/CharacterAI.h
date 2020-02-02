@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "HealthComponent.h"
 #include "CharacterAI.generated.h"
 
 UCLASS()
@@ -27,10 +28,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool IsRagdollActivate;
 
-	UFUNCTION(BlueprintCallable)
-	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 public:	
+	UFUNCTION(BlueprintCallable)
+	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -39,4 +40,5 @@ public:
 
 	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
+	FORCEINLINE bool IsCharacterDead() const { return HealthComponent->IsCharacterDead(); }
 };

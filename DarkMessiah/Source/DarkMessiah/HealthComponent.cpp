@@ -2,6 +2,7 @@
 
 
 #include "HealthComponent.h"
+#include "Helpers/HelperLibrary.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -19,7 +20,7 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	Health = MaxHealth;
 
 }
 
@@ -28,6 +29,7 @@ void UHealthComponent::InflictDamage(int32 _damage)
 {
 	if (!IsDead)
 	{
+		HelperLibrary::Print(FString::FromInt(_damage));
 		Health = FMath::Clamp(Health - _damage, 0, MaxHealth);
 		if (Health <= 0.0f)
 		{

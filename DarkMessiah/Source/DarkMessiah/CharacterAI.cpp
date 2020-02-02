@@ -5,7 +5,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "HealthComponent.h"
 #include "Helpers/HelperLibrary.h"
 
 // Sets default values
@@ -48,6 +47,7 @@ float ACharacterAI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 {
 	// Call the base class - this will tell us how much damage to apply  
 	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	if (HealthComponent == nullptr) return 0.0f;
 	if (HealthComponent->IsCharacterDead())
 	{
 		return 0.0f;

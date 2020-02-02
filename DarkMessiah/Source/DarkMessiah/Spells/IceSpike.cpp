@@ -9,13 +9,15 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/Actor.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "CharacterAI.h"
+#include "DarkMessiahCharacter.h"
 
 AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 {
 	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = sceneComp;
 	Mesh = _objectInit.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("MESH"));
-	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp")); 
+	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
@@ -33,10 +35,6 @@ void AIceSpike::LaunchSpell(FVector _direction)
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Projectile"));
 }
 
-void AIceSpike::InitSpell()
-{
-
-}
 
 void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult)
 {
@@ -45,23 +43,67 @@ void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult
 		FVector direction;
 		FVector readjustPosition;
 		//spawn an actor with PhysicsConstraint to stuck pawn in a wall
-		ImpalementActor = world->SpawnActor<UPhysicsConstraintComponent>(Impalement);
-		if (ImpalementActor != nullptr)
+		ImpalementComponent = world->SpawnActor<AActor>(Impalement)->FindComponentByClass<UPhysicsConstraintComponent>();
+		if (ImpalementComponent != nullptr)
 		{
 			FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
-			ImpalementActor->AttachToComponent(_hitPawnResult.GetComponent(), attachementToActor, _hitPawnResult.BoneName);
+			ImpalementComponent->AttachToComponent(_hitPawnResult.GetComponent(), attachementToActor, _hitPawnResult.BoneName);
 
 			//readjust position of pawn to avoid it to thrill in the wall
 			direction = (GetActorLocation() - _hitStaticResult.ImpactPoint);
 			direction /= direction.Size();
 			readjustPosition = _hitStaticResult.ImpactPoint + direction * 5.0f;
-			SetActorLocation(readjustPosition);
+
+			_hitPawnResult.GetActor()->SetActorLocation(readjustPosition, true);
 
 			SetLifeSpan(10.0f);
 
 			//place the physics constraint on the wall to keep player stuck to the wall
-			ImpalementActor->SetWorldLocation(_hitStaticResult.ImpactPoint);
-			ImpalementActor->SetConstrainedComponents(_hitStaticResult.GetComponent(), _hitStaticResult.BoneName, _hitPawnResult.GetComponent(), _hitPawnResult.BoneName);
+			ImpalementComponent->SetWorldLocation(_hitStaticResult.ImpactPoint);
+			ImpalementComponent->SetConstrainedComponents(_hitStaticResult.GetComponent(), _hitStaticResult.BoneName, _hitPawnResult.GetComponent(), _hitPawnResult.BoneName);
 		}
 	}
+}
+
+void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
+		AttachToComponent(OtherComp, attachementToActor, Hit.BoneName);
+		ActorHit = Cast<ACharacterAI>(OtherActor);
+		if (ActorHit != nullptr)
+		{
+			FHitResult hitResult;
+			FVector endLine = GetActorForwardVector() * DistanceImpalement;
+			FCollisionQueryParams collisionQueryParems;
+			HelperLibrary::Print(OtherActor->GetActorLocation().ToString());
+			if (UWorld* world = GetWorld())
+			{
+				bool hit = world->LineTraceSingleByObjectType(hitResult, Hit.ImpactPoint, endLine, ECC_WorldStatic, collisionQueryParems);
+				if (hit)
+				{
+					if (Caster)
+					{
+						FDamageEvent damageEvent;
+						ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
+						if (ActorHit->IsCharacterDead())
+						{
+							ImpaleActor(hitResult, Hit);
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		Destroy();
+	}
+}
+
+void AIceSpike::BeginPlay()
+{
+	Super::BeginPlay();
+	CollisionComp->OnComponentHit.AddDynamic(this, &AIceSpike::OnHit);
 }

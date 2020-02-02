@@ -51,6 +51,7 @@ private :
 	void IncreasePower();
 	void LaunchSpell(FVector _direction) override;
 	void PrepareSpell() override;
+	void InitSpell() override;
 
 	FORCEINLINE class USphereComponent* GetSphereComponent() const { return CollisionComp; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }

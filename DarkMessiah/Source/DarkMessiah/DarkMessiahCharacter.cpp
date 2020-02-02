@@ -183,6 +183,7 @@ void ADarkMessiahCharacter::CreateLaunchingSpell()
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
 					spell->AttachToComponent(SpellOffset, attachementPawn);
 					spell->InitSpell();
+					spell->Caster = this;
 				}
 			}
 		}

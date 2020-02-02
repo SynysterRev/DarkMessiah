@@ -21,8 +21,6 @@ public :
 
 	void LaunchSpell(FVector _direction) override;
 
-	void InitSpell() override;
-
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
 	FORCEINLINE class UCapsuleComponent* GetCapsuleComponent() const { return CollisionComp; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
@@ -32,8 +30,20 @@ protected:
 	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult);
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UPhysicsConstraintComponent> Impalement;
+	TSubclassOf<class AActor> Impalement;
+
+	UPROPERTY(EditAnywhere)
+	float DistanceImpalement;
+
+	UPROPERTY(EditAnywhere)
+	int32 Damage;
+
+	UFUNCTION()
+	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 private:
+
+	void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
@@ -44,6 +54,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	class UCapsuleComponent* CollisionComp;
 
-	UPhysicsConstraintComponent* ImpalementActor;
+	class UPhysicsConstraintComponent* ImpalementComponent;
+	class ACharacterAI* ActorHit;
 
 };
