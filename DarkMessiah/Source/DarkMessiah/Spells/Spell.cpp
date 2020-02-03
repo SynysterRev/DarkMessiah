@@ -16,6 +16,7 @@ void ASpell::LaunchSpell(FVector _direction)
 
 void ASpell::InitSpell()
 {
+	
 }
 
 void ASpell::PrepareSpell()
