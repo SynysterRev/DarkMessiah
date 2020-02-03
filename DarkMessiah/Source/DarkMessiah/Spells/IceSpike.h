@@ -38,6 +38,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	int32 Damage;
 
+	UPROPERTY(EditAnywhere)
+	float TimerBeforeDestruction;
+
 	UFUNCTION()
 	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 

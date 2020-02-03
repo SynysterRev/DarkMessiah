@@ -55,8 +55,8 @@ void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult
 			readjustPosition = _hitStaticResult.ImpactPoint + direction * 5.0f;
 			OtherActor->SetActorLocation(readjustPosition);
 
-			SetLifeSpan(15.0f);
-			world->GetTimerManager().SetTimer(TimerDestruction, this, &AIceSpike::DestroyImpalement, 10.0f, true);
+			SetLifeSpan(TimerBeforeDestruction);
+			world->GetTimerManager().SetTimer(TimerDestruction, this, &AIceSpike::DestroyImpalement, TimerBeforeDestruction, true);
 
 			//place the physics constraint on the wall to keep player stuck to the wall
 			ImpalementComponent->SetWorldLocation(_hitStaticResult.ImpactPoint);
@@ -77,21 +77,19 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 			FHitResult hitResult;
 			FVector endLine = GetActorForwardVector() * DistanceImpalement;
 			FCollisionQueryParams collisionQueryParems;
-			HelperLibrary::Print(OtherComp->GetName());
-			HelperLibrary::Print(Hit.GetActor()->GetActorLocation().ToString());
 			if (UWorld* world = GetWorld())
 			{
+				if (Caster)
+				{
+					FDamageEvent damageEvent;
+					ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
+				}
 				bool hit = world->LineTraceSingleByObjectType(hitResult, Hit.ImpactPoint, endLine, ECC_WorldStatic, collisionQueryParems);
 				if (hit)
 				{
-					if (Caster)
+					if (ActorHit->IsCharacterDead())
 					{
-						FDamageEvent damageEvent;
-						ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
-						if (ActorHit->IsCharacterDead())
-						{
-							ImpaleActor(hitResult, Hit, OtherActor);
-						}
+						ImpaleActor(hitResult, Hit, OtherActor);
 					}
 				}
 			}
