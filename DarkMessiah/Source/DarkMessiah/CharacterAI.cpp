@@ -37,7 +37,6 @@ void ACharacterAI::ActivateRagDoll()
 			CapsuleComp->DestroyComponent();
 		}
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		//GetMesh()->SetAllBodiesSimulatePhysics(true);
 		GetMesh()->SetSimulatePhysics(true);
 		IsRagdollActivate = true;
 	}

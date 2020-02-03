@@ -40,7 +40,7 @@ public :
 private :
 	/** Sphere collision component */
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
-		class USphereComponent* CollisionComp;
+	class USphereComponent* CollisionComp;
 	UPROPERTY()
 	float PowerMultiplicator;
 	UPROPERTY()

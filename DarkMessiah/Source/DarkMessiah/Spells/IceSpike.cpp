@@ -36,7 +36,7 @@ void AIceSpike::LaunchSpell(FVector _direction)
 }
 
 
-void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult)
+void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, AActor* OtherActor)
 {
 	if (UWorld* world = GetWorld())
 	{
@@ -53,10 +53,10 @@ void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult
 			direction = (GetActorLocation() - _hitStaticResult.ImpactPoint);
 			direction /= direction.Size();
 			readjustPosition = _hitStaticResult.ImpactPoint + direction * 5.0f;
+			OtherActor->SetActorLocation(readjustPosition);
 
-			_hitPawnResult.GetActor()->SetActorLocation(readjustPosition, true);
-
-			SetLifeSpan(10.0f);
+			SetLifeSpan(15.0f);
+			world->GetTimerManager().SetTimer(TimerDestruction, this, &AIceSpike::DestroyImpalement, 10.0f, true);
 
 			//place the physics constraint on the wall to keep player stuck to the wall
 			ImpalementComponent->SetWorldLocation(_hitStaticResult.ImpactPoint);
@@ -77,7 +77,8 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 			FHitResult hitResult;
 			FVector endLine = GetActorForwardVector() * DistanceImpalement;
 			FCollisionQueryParams collisionQueryParems;
-			HelperLibrary::Print(OtherActor->GetActorLocation().ToString());
+			HelperLibrary::Print(OtherComp->GetName());
+			HelperLibrary::Print(Hit.GetActor()->GetActorLocation().ToString());
 			if (UWorld* world = GetWorld())
 			{
 				bool hit = world->LineTraceSingleByObjectType(hitResult, Hit.ImpactPoint, endLine, ECC_WorldStatic, collisionQueryParems);
@@ -89,7 +90,7 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 						ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
 						if (ActorHit->IsCharacterDead())
 						{
-							ImpaleActor(hitResult, Hit);
+							ImpaleActor(hitResult, Hit, OtherActor);
 						}
 					}
 				}
@@ -106,4 +107,13 @@ void AIceSpike::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentHit.AddDynamic(this, &AIceSpike::OnHit);
+}
+
+void AIceSpike::DestroyImpalement()
+{
+	Destroy();
+	if (ImpalementComponent != nullptr)
+	{
+		ImpalementComponent->DestroyComponent();
+	}
 }

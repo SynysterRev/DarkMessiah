@@ -27,7 +27,7 @@ public :
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult);
+	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, class AActor* OtherActor);
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> Impalement;
@@ -44,6 +44,8 @@ protected:
 private:
 
 	void BeginPlay() override;
+	
+	FTimerHandle TimerDestruction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
@@ -56,5 +58,7 @@ private:
 
 	class UPhysicsConstraintComponent* ImpalementComponent;
 	class ACharacterAI* ActorHit;
+
+	void DestroyImpalement();
 
 };
