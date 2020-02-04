@@ -8,6 +8,8 @@
 #include "DarkMessiahCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Helpers/HelperLibrary.h"
+#include "CharacterAI.h"
+#include "Components/StaticMeshComponent.h"
 
 
 AFireBall::AFireBall()
@@ -23,6 +25,50 @@ AFireBall::AFireBall()
 	PowerMultiplicator = 1.0f;
 	CurrentPowerMultiplicator = PowerMultiplicator;
 	RootComponent = CollisionComp;
+}
+
+void AFireBall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		if (UWorld* world = GetWorld())
+		{
+			TArray<AActor*>OutActors;
+			TArray<AActor*>ActorsToIgnore;
+			TArray<TEnumAsByte<EObjectTypeQuery>>ObjectTypes;
+			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
+
+			if (UKismetSystemLibrary::SphereOverlapActors(world, Hit.ImpactPoint, RadiusExplosion, ObjectTypes, NULL, ActorsToIgnore, OutActors))
+			{
+				for (AActor* actor : OutActors)
+				{
+					ACharacterAI* charact = Cast<ACharacterAI>(actor);
+					if (charact != nullptr)
+					{
+						if (Caster)
+						{
+							FDamageEvent damageEvent;
+							charact->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
+						}
+					}
+					UPrimitiveComponent* primitive = Cast<UPrimitiveComponent>(actor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+					primitive->AddRadialImpulse(Hit.ImpactPoint, RadiusExplosion, Strength, ERadialImpulseFalloff::RIF_Constant, true);
+				}
+				Destroy();
+			}
+			else
+			{
+				Destroy();
+			}
+		}
+	}
+}
+
+void AFireBall::BeginPlay()
+{
+	Super::BeginPlay();
+	CollisionComp->OnComponentHit.AddDynamic(this, &AFireBall::OnHit);
 }
 
 void AFireBall::IncreasePower()
@@ -69,5 +115,10 @@ void AFireBall::PrepareSpell()
 	{
 		world->GetTimerManager().SetTimer(TimerPreparation, this, &AFireBall::IncreasePower, TimerIncrease, true);
 	}
+}
+
+void AFireBall::InitSpell()
+{
+	Super::InitSpell();
 }
 

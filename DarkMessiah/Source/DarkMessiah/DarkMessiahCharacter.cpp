@@ -17,6 +17,7 @@
 #include "Spells/FireBall.h"
 #include "Spells/IceSpike.h"
 #include "Helpers/HelperLibrary.h"
+#include "HealthComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -83,6 +84,8 @@ void ADarkMessiahCharacter::BeginPlay()
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
+
+	HealthComponent = FindComponentByClass<UHealthComponent>();
 	// try and fire a projectile
 	TypeSpell = ETypeSpell::FireBall;
 	CreateLaunchingSpell();
@@ -128,7 +131,7 @@ void ADarkMessiahCharacter::OnFire()
 {
 	if (spell != nullptr)
 	{
-		FVector pointFarAway = FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 5000.0f;
+		FVector pointFarAway = FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 2000.0f;
 		FVector direction = (pointFarAway - spell->GetActorLocation()).GetSafeNormal();
 		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
 		spell->DetachFromActor(detachementParam);
@@ -143,15 +146,15 @@ void ADarkMessiahCharacter::OnFire()
 
 
 	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
+	//if (FireAnimation != NULL)
+	//{
+	//	// Get the animation object for the arms mesh
+	//	UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+	//	if (AnimInstance != NULL)
+	//	{
+	//		AnimInstance->Montage_Play(FireAnimation, 1.f);
+	//	}
+	//}
 }
 
 void ADarkMessiahCharacter::CreateLaunchingSpell()
@@ -185,6 +188,7 @@ void ADarkMessiahCharacter::CreateLaunchingSpell()
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
 					spell->AttachToComponent(SpellOffset, attachementPawn);
 					spell->InitSpell();
+					spell->Caster = this;
 				}
 			}
 		}

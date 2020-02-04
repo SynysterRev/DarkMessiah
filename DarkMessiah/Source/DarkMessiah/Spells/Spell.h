@@ -29,6 +29,7 @@ protected:
 	UPROPERTY()
 		FVector CurrentLocation;
 
+
 public:
 
 	/** called when projectile hits something */
@@ -37,6 +38,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		virtual void LaunchSpell(FVector _direction);
+	UPROPERTY()
+	class ADarkMessiahCharacter* Caster;
 
 	UFUNCTION()
 		virtual void InitSpell();

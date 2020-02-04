@@ -34,23 +34,32 @@ public :
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float Strength;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	float Damage;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
+
+	UFUNCTION()
+	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private :
 	/** Sphere collision component */
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
-		class USphereComponent* CollisionComp;
+	class USphereComponent* CollisionComp;
 	UPROPERTY()
 	float PowerMultiplicator;
 	UPROPERTY()
 	float CurrentPowerMultiplicator;
+
+	void BeginPlay() override;
 
 	FTimerHandle TimerPreparation;
 	UFUNCTION()
 	void IncreasePower();
 	void LaunchSpell(FVector _direction) override;
 	void PrepareSpell() override;
+	void InitSpell() override;
 
 	FORCEINLINE class USphereComponent* GetSphereComponent() const { return CollisionComp; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
