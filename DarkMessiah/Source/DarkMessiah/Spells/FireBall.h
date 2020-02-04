@@ -22,6 +22,7 @@ public :
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float MaxPowerMultiplicator;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	FVector MaxScale;
 
@@ -35,6 +36,9 @@ public :
 	float Strength;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	float MaxStrength = 2000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float Damage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -43,6 +47,8 @@ public :
 	UFUNCTION()
 	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	FORCEINLINE float GetStrengthPercent() { return (Strength / MaxStrength); };
 private :
 	/** Sphere collision component */
 	UPROPERTY(VisibleAnywhere, Category = Projectile)
