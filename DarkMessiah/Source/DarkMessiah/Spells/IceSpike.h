@@ -27,7 +27,7 @@ public :
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, class AActor* OtherActor);
+	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, class AActor* OtherActor, FVector _velocity);
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> Impalement;
@@ -47,8 +47,19 @@ protected:
 private:
 
 	void BeginPlay() override;
+
+	void Tick(float DeltaTime) override;
 	
 	FTimerHandle TimerDestruction;
+
+	bool HasImpaled;
+
+	FVector PointImpactOnPawn;
+	FVector PointImpactOnStatic;
+
+	FName BoneHit;
+	class UPrimitiveComponent* ComponentHit;
+	class USkeletalMeshComponent* MeshHit;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;

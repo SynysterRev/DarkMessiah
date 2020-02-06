@@ -131,16 +131,25 @@ void ADarkMessiahCharacter::OnFire()
 {
 	if (spell != nullptr)
 	{
-		FVector pointFarAway = FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 2000.0f;
-		FVector direction = (pointFarAway - spell->GetActorLocation()).GetSafeNormal();
-		FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
-		spell->DetachFromActor(detachementParam);
-		spell->LaunchSpell(direction);
-		OnFireSpell(spell);
-		spell = nullptr;
 		if (UWorld* world = GetWorld())
 		{
-			world->GetTimerManager().SetTimer(m_timerSpawnFireBall, this, &ADarkMessiahCharacter::CreateLaunchingSpell, CDSpawnSpell, false);
+			FHitResult hitResult;
+			FCollisionQueryParams collisionQueryParems;
+			
+			bool hit = world->LineTraceSingleByChannel(hitResult, FirstPersonCameraComponent->GetComponentLocation(), FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 20000.0f,
+				ECC_Visibility, collisionQueryParems);
+			if (hit)
+			{
+				HelperLibrary::Print(hitResult.GetComponent()->GetName());
+				//FVector pointFarAway = FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 2000.0f;
+				FVector direction = (hitResult.ImpactPoint - spell->GetActorLocation()).GetSafeNormal();
+				FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
+				spell->DetachFromActor(detachementParam);
+				spell->LaunchSpell(direction);
+				OnFireSpell(spell);
+				spell = nullptr;
+				world->GetTimerManager().SetTimer(m_timerSpawnFireBall, this, &ADarkMessiahCharacter::CreateLaunchingSpell, CDSpawnSpell, false);
+			}
 		}
 	}
 
