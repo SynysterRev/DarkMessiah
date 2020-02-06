@@ -104,6 +104,7 @@ void AFireBall::LaunchSpell(FVector _direction)
 		}
 	}
 	Strength *= CurrentPowerMultiplicator;
+	Strength = FMath::Min(Strength, MaxStrength);
 	GetProjectileMovement()->Velocity = _direction * Speed;
 	SetLifeSpan(2.0f);
 	GetSphereComponent()->SetCollisionProfileName(TEXT("Projectile"));
