@@ -33,7 +33,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetPercentHealth() { return (float)Health / (float)MaxHealth; }
 
+	//UPROPERTY(EditAnywhere)
+	/*TSubclassOf<UTextRenderComponent> */
+
 public:	
+	UPROPERTY(BlueprintAssignable, Category = "Damage Taken")
 	FCharacterTakeDamageDelegate OnCharacterTakeDamage;
 
 	// Called every frame
