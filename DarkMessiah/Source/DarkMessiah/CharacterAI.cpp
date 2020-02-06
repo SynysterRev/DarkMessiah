@@ -54,15 +54,9 @@ void ACharacterAI::ActivateRagDoll()
 
 void ACharacterAI::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (IsImpaled && (OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-		HelperLibrary::Print("hit");
-		if (OtherComp->Mobility == EComponentMobility::Static)
-		{
-			ImpalementComponent->SetWorldLocation(Hit.ImpactPoint);
-			HelperLibrary::Print("cc");
-			ImpalementComponent->SetConstrainedComponents(OtherComp, Hit.BoneName, HitComp, Hit.MyBoneName);
-		}
+
 	}
 }
 

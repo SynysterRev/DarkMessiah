@@ -47,23 +47,19 @@ void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult
 		ImpalementComponent = world->SpawnActor<AActor>(Impalement)->FindComponentByClass<UPhysicsConstraintComponent>();
 		if (ImpalementComponent != nullptr)
 		{
+			//physicsconstrait attach to the pawn
 			FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
 			ImpalementComponent->AttachToComponent(_hitPawnResult.GetComponent(), attachementToActor, _hitPawnResult.BoneName);
 			if (ACharacterAI* ai = Cast<ACharacterAI>(OtherActor))
 			{
 				MeshHit = ai->GetMesh();
-				//direction = _velocity / _velocity.Size();
-				
-				direction = _hitStaticResult.ImpactPoint - _hitPawnResult.ImpactNormal;// + direction * 5.0f;
-				direction /= direction.Size();
-				ai->SetImpaled(true);
-				ai->SetConstraint(ImpalementComponent);
+				direction = _velocity / _velocity.Size();
 				if (MeshHit)
 				{
+					//move the mesh in the same direction as the spike
 					MeshHit->SetAllPhysicsLinearVelocity(direction * 8000.0f);
 				}
 			}
-			//readjust position of pawn to avoid it to thrill in the wall
 			SetLifeSpan(TimerBeforeDestruction);
 			world->GetTimerManager().SetTimer(TimerDestruction, this, &AIceSpike::DestroyImpalement, TimerBeforeDestruction, true);
 
@@ -79,9 +75,12 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
 		FVector velocity = GetProjectileMovement()->Velocity;
+		//attach spike to the actor hit
 		FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
 		AttachToComponent(OtherComp, attachementToActor, Hit.BoneName);
+
 		ActorHit = Cast<ACharacterAI>(OtherActor);
+
 		if (ActorHit != nullptr)
 		{
 			FHitResult hitResult;
@@ -91,12 +90,14 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 			ComponentHit = OtherComp;
 			if (UWorld* world = GetWorld())
 			{
+				//inflict damage to the ai
 				if (Caster)
 				{
 					FDamageEvent damageEvent;
 					ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
 				}
 				PointImpactOnPawn = Hit.ImpactPoint;
+				//raycast to see if there's a wall behind ai
 				bool hit = world->LineTraceSingleByObjectType(hitResult, Hit.ImpactPoint, endLine, ECC_WorldStatic, collisionQueryParems);
 				if (hit)
 				{
@@ -120,33 +121,6 @@ void AIceSpike::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentHit.AddDynamic(this, &AIceSpike::OnHit);
-}
-
-void AIceSpike::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	if (HasImpaled)
-	{
-		if (UWorld* world = GetWorld())
-		{
-			FHitResult hitResult;
-			FVector endLine = GetActorForwardVector() * DistanceImpalement;
-			FCollisionQueryParams collisionQueryParems;
-			HelperLibrary::Print(FString::SanitizeFloat(FVector::Distance(MeshHit->GetComponentLocation(), PointImpactOnStatic)));
-			if (FVector::Distance(MeshHit->GetComponentLocation(), PointImpactOnStatic) < 200.0f)
-			{
-				FVector test = MeshHit->GetComponentLocation() - PointImpactOnStatic;
-				test /= test.Size();
-				FVector adjust = PointImpactOnStatic + test * 20.0f;
-				MeshHit->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-				ComponentHit->SetWorldLocation(adjust);
-				HelperLibrary::Print("cccc");
-				ImpalementComponent->SetWorldLocation(PointImpactOnStatic);
-				ImpalementComponent->SetConstrainedComponents(hitResult.GetComponent(), hitResult.BoneName, ComponentHit, BoneHit);
-				HasImpaled = false;
-			}
-		}
-	}
 }
 
 void AIceSpike::DestroyImpalement()

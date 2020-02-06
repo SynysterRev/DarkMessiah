@@ -47,8 +47,6 @@ protected:
 private:
 
 	void BeginPlay() override;
-
-	void Tick(float DeltaTime) override;
 	
 	FTimerHandle TimerDestruction;
 

@@ -31,11 +31,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool IsRagdollActivate;
 
-	UPROPERTY()
-	bool IsImpaled;
-
-	class UPhysicsConstraintComponent* ImpalementComponent;
-
 	UFUNCTION()
 	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
@@ -51,8 +46,4 @@ public:
 	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 	FORCEINLINE bool IsCharacterDead() const { return HealthComponent->IsCharacterDead(); }
-
-	inline void SetImpaled(bool _isImpaled) { IsImpaled = _isImpaled; }
-
-	inline void SetConstraint(class UPhysicsConstraintComponent* _constraint) { ImpalementComponent = _constraint; }
 };
