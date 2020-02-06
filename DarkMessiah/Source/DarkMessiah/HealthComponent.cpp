@@ -29,7 +29,7 @@ void UHealthComponent::InflictDamage(int32 _damage)
 {
 	if (!IsDead)
 	{
-		HelperLibrary::Print(FString::FromInt(_damage));
+		OnCharacterTakeDamage.Broadcast(_damage);
 		Health = FMath::Clamp(Health - _damage, 0, MaxHealth);
 		if (Health <= 0.0f)
 		{
