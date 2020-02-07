@@ -41,40 +41,6 @@ void AIceSpike::LaunchSpell(FVector _direction)
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Projectile"));
 }
 
-
-void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, AActor* OtherActor, FVector _velocity)
-{
-	/*if (UWorld* world = GetWorld())
-	{
-		FVector direction;
-		FVector readjustPosition;
-		//spawn an actor with PhysicsConstraint to stuck pawn in a wall
-		ImpalementComponent = world->SpawnActor<AActor>(Impalement)->FindComponentByClass<UPhysicsConstraintComponent>();
-		if (ImpalementComponent != nullptr)
-		{
-			//physicsconstrait attach to the pawn
-			FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
-			ImpalementComponent->AttachToComponent(_hitPawnResult.GetComponent(), attachementToActor, _hitPawnResult.BoneName);
-			if (ACharacterAI* ai = Cast<ACharacterAI>(OtherActor))
-			{
-				MeshHit = ai->GetMesh();
-				direction = _velocity / _velocity.Size();
-				if (MeshHit)
-				{
-					//move the mesh in the same direction as the spike
-					MeshHit->SetAllPhysicsLinearVelocity(direction * 8000.0f);
-				}
-			}
-			SetLifeSpan(TimerBeforeDestruction);
-			world->GetTimerManager().SetTimer(TimerDestruction, this, &AIceSpike::DestroyImpalement, TimerBeforeDestruction, true);
-
-			//place the physics constraint on the wall to keep player stuck to the wall
-			/*ImpalementComponent->SetWorldLocation(_hitStaticResult.ImpactPoint);
-			ImpalementComponent->SetConstrainedComponents(_hitStaticResult.GetComponent(), _hitStaticResult.BoneName, _hitPawnResult.GetComponent(), _hitPawnResult.BoneName);*/
-			/*}
-		}*/
-}
-
 void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
@@ -105,10 +71,6 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 				if (ActorHit->IsCharacterDead())
 				{
 					MeshHit = ActorHit->GetMesh();
-
-					//the bone hit becomes the heaviest bone
-					MeshHit->SetAllMassScale(0.0f);
-					MeshHit->SetMassScale(BoneHit);
 				}
 
 				FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
@@ -147,7 +109,6 @@ void AIceSpike::Tick(float _deltaTime)
 				SetLifeSpan(TimerBeforeDestruction);
 
 				bonePos = hit.Location + hit.Normal * 10.0f;
-				MeshHit->SetAllMassScale(1.0f);
 				HelperLibrary::Print(hit.GetActor()->GetName());
 			}
 		}
@@ -161,8 +122,4 @@ void AIceSpike::Tick(float _deltaTime)
 	}
 }
 
-void AIceSpike::DestroyImpalement()
-{
-	HelperLibrary::Print("stop2");
-	Destroy();
-}
+

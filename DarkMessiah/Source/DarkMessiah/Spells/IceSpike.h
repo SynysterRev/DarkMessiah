@@ -26,9 +26,6 @@ public :
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 protected:
-	UFUNCTION(BlueprintCallable)
-	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, class AActor* OtherActor, FVector _velocity);
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> Impalement;
 
@@ -74,7 +71,4 @@ private:
 
 	class UPhysicsConstraintComponent* ImpalementComponent;
 	class ACharacterAI* ActorHit;
-
-	void DestroyImpalement();
-
 };
