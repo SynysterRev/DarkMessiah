@@ -35,8 +35,8 @@ AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 
 void AIceSpike::LaunchSpell(FVector _direction)
 {
-	DirVelocity = _direction * Speed;
-	GetProjectileMovement()->Velocity = DirVelocity;
+	DirVelocity = _direction;
+	GetProjectileMovement()->Velocity = DirVelocity * Speed;
 	SetLifeSpan(2.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Projectile"));
 }
@@ -135,11 +135,11 @@ void AIceSpike::Tick(float _deltaTime)
 		if (!bStopSpell)
 		{
 			//Attached Bone Follow Spell
-			GetProjectileMovement()->Velocity = DirVelocity;
-			MeshHit->SetPhysicsLinearVelocity(DirVelocity, false, BoneHit);
+			GetProjectileMovement()->Velocity = DirVelocity * Speed;
+			MeshHit->SetPhysicsLinearVelocity(GetProjectileMovement()->Velocity, false, BoneHit);
 
 			FHitResult hit;
-			if (GetWorld()->LineTraceSingleByChannel(hit, Mesh->GetComponentLocation(), Mesh->GetComponentLocation() + (DirVelocity / DirVelocity.Size())*7.0f, ECollisionChannel::ECC_GameTraceChannel4))
+			if (GetWorld()->LineTraceSingleByChannel(hit, Mesh->GetComponentLocation(), Mesh->GetComponentLocation() + DirVelocity * Speed*0.1f, ECollisionChannel::ECC_GameTraceChannel4))
 			{
 				bStopSpell = true;
 
@@ -148,13 +148,14 @@ void AIceSpike::Tick(float _deltaTime)
 
 				bonePos = hit.Location + hit.Normal * 10.0f;
 				MeshHit->SetAllMassScale(1.0f);
+				HelperLibrary::Print(hit.GetActor()->GetName());
 			}
 		}
 		else
 		{
 			//to do make a better stability pos
 			FTransform tr(bonePos);
-			MeshHit->GetBodyInstance(BoneHit)->SetBodyTransform(tr, ETeleportType::None);
+			MeshHit->GetBodyInstance(BoneHit)->SetBodyTransform(tr, ETeleportType::ResetPhysics);
 			MeshHit->GetBodyInstance(BoneHit)->SetLinearVelocity(FVector::ZeroVector, false);
 		}
 	}
