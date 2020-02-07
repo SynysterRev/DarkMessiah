@@ -47,13 +47,17 @@ protected:
 private:
 
 	void BeginPlay() override;
-	
+	void Tick(float _deltaTime) override;
+
 	FTimerHandle TimerDestruction;
 
 	bool HasImpaled;
+	bool bStopSpell;
 
 	FVector PointImpactOnPawn;
 	FVector PointImpactOnStatic;
+	FVector DirVelocity;
+	FVector bonePos;
 
 	FName BoneHit;
 	class UPrimitiveComponent* ComponentHit;
