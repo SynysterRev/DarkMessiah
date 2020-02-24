@@ -13,6 +13,8 @@
 #include "DarkMessiahCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CollisionQueryParams.h"
+#include "DarkMessiahCharacter.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 
 AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
@@ -47,17 +49,17 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 	{
 		FVector velocity = GetProjectileMovement()->Velocity;
 		//attach spike to the actor hit
-
-
 		ActorHit = Cast<ACharacterAI>(OtherActor);
 
 		if (ActorHit != nullptr)
 		{
 			FHitResult hitResult;
-			FVector endLine = GetActorForwardVector() * DistanceImpalement;
 			FCollisionQueryParams collisionQueryParems;
 			BoneHit = Hit.BoneName;
 			ComponentHit = OtherComp;
+			FVector direction = (Hit.ImpactPoint - Caster->GetFirstPersonCameraComponent()->GetComponentLocation()).GetSafeNormal();
+			DirHit = direction;
+			
 			if (UWorld* world = GetWorld())
 			{
 				//inflict damage to the ai
@@ -97,11 +99,10 @@ void AIceSpike::Tick(float _deltaTime)
 		if (!bStopSpell)
 		{
 			//Attached Bone Follow Spell
-			GetProjectileMovement()->Velocity = DirVelocity * Speed;
+			GetProjectileMovement()->Velocity = DirHit * Speed;
 			MeshHit->SetPhysicsLinearVelocity(GetProjectileMovement()->Velocity, false, BoneHit);
-
 			FHitResult hit;
-			if (GetWorld()->LineTraceSingleByChannel(hit, Mesh->GetComponentLocation(), Mesh->GetComponentLocation() + DirVelocity * Speed*0.1f, ECollisionChannel::ECC_GameTraceChannel4))
+			if (GetWorld()->LineTraceSingleByChannel(hit, Mesh->GetComponentLocation(), Mesh->GetComponentLocation() + DirHit * Speed*0.1f, ECollisionChannel::ECC_GameTraceChannel4))
 			{
 				bStopSpell = true;
 

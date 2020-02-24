@@ -85,7 +85,7 @@ public:
 	void OnFireSpell_Implementation(class ASpell* _spell);
 
 protected:
-
+	bool IsCasting;
 	/** Fires a projectile. */
 	void OnFire();
 
@@ -96,8 +96,6 @@ protected:
 
 	/** Handles stafing movement, left and right */
 	void MoveRight(float Val);
-
-	FTimerHandle m_timerSpawnFireBall;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float CDSpawnSpell;

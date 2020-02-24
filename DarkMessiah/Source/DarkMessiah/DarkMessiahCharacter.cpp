@@ -129,7 +129,7 @@ void ADarkMessiahCharacter::OnFireSpell_Implementation(ASpell* _spell)
 
 void ADarkMessiahCharacter::OnFire()
 {
-	if (spell != nullptr)
+	if (spell != nullptr && IsCasting)
 	{
 		if (UWorld* world = GetWorld())
 		{
@@ -145,6 +145,8 @@ void ADarkMessiahCharacter::OnFire()
 			spell->LaunchSpell(direction);
 			OnFireSpell(spell);
 			spell = nullptr;
+			IsCasting = false;
+			FTimerHandle m_timerSpawnFireBall;
 			world->GetTimerManager().SetTimer(m_timerSpawnFireBall, this, &ADarkMessiahCharacter::CreateLaunchingSpell, CDSpawnSpell, false);
 		}
 	}
@@ -235,6 +237,7 @@ void ADarkMessiahCharacter::PrepareFire()
 	if (spell != nullptr)
 	{
 		spell->PrepareSpell();
+		IsCasting = true;
 	}
 }
 

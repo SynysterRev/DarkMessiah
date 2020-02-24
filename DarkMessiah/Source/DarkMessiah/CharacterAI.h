@@ -7,6 +7,7 @@
 #include "HealthComponent.h"
 #include "CharacterAI.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterDiedDelegate);
 UCLASS()
 class DARKMESSIAH_API ACharacterAI : public ACharacter
 {
@@ -35,6 +36,9 @@ protected:
 	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
+	UPROPERTY(BlueprintAssignable, Category = "Death")
+	FCharacterDiedDelegate OnCharacterDied;
+
 	UFUNCTION(BlueprintCallable)
 	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 	// Called every frame

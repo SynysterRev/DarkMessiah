@@ -54,6 +54,7 @@ private:
 	FVector PointImpactOnPawn;
 	FVector PointImpactOnStatic;
 	FVector DirVelocity;
+	FVector DirHit;
 	FVector bonePos;
 
 	FName BoneHit;

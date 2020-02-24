@@ -75,6 +75,7 @@ float ACharacterAI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 		if (HealthComponent->IsCharacterDead())
 		{
 			ActivateRagDoll();
+			OnCharacterDied.Broadcast();
 		}
 	}
 	return ActualDamage;
