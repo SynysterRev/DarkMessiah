@@ -16,6 +16,7 @@
 #include "DarkMessiahCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/World.h"
+#include "Math/Vector.h"
 
 AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 {
@@ -137,11 +138,23 @@ void AIceSpike::CreateSpike()
 {
 	if (CurrentNumberSpike < NumberMaxSpike)
 	{
+		float test = 40.0f * CurrentNumberSpike;
 		CurrentNumberSpike++;
 		if (UWorld* world = GetWorld())
 		{
 			AIceSpike* spike = world->SpawnActor<AIceSpike>(IceSpike);
-			AllProjectile.Add(spike);
+			if (spike != nullptr)
+			{
+				FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
+				spike->AttachToActor(this, attachementPawn);
+				FVector location(GetActorLocation());
+				FVector radius(0.0f, 10.0f, 0.0f);
+				FVector RotateValue = radius.RotateAngleAxis(test, FVector(1.0f, 0.0f, 0.0f));
+				FVector pivot = GetActorLocation() + FVector(0.0f, 10.0f, 0.0f);
+
+				spike->SetActorLocation(RotateValue + pivot);
+				AllProjectile.Add(spike);
+			}
 		}
 	}
 	else
