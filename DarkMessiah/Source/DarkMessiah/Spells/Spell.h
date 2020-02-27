@@ -48,6 +48,9 @@ public:
 		virtual void PrepareSpell();
 
 	UFUNCTION()
+		virtual void PrepareSecondSpell();
+
+	UFUNCTION()
 		virtual void DestroySpell();
 
 };

@@ -114,6 +114,8 @@ protected:
 
 	void PrepareFire();
 
+	void PrepareSecondFire();
+
 	void ChangeSpell1();
 
 	void ChangeSpell2();

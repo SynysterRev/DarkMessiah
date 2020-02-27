@@ -23,6 +23,10 @@ void ASpell::PrepareSpell()
 {
 }
 
+void ASpell::PrepareSecondSpell()
+{
+}
+
 void ASpell::DestroySpell()
 {
 	Destroy();

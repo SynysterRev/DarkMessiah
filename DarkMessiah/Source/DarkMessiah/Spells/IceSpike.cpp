@@ -43,6 +43,14 @@ void AIceSpike::LaunchSpell(FVector _direction)
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Projectile"));
 }
 
+void AIceSpike::PrepareSecondSpell()
+{
+	if (UWorld* world = GetWorld())
+	{
+		world->GetTimerManager().SetTimer(TimerSpawn, this, &AIceSpike::CreateSpike, TimerCreation, true);
+	}
+}
+
 void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
@@ -90,6 +98,8 @@ void AIceSpike::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentHit.AddDynamic(this, &AIceSpike::OnHit);
+	CurrentNumberSpike = 1;
+	AllProjectile.Add(this);
 }
 
 void AIceSpike::Tick(float _deltaTime)
@@ -119,6 +129,26 @@ void AIceSpike::Tick(float _deltaTime)
 			FTransform tr(bonePos);
 			MeshHit->GetBodyInstance(BoneHit)->SetBodyTransform(tr, ETeleportType::ResetPhysics);
 			MeshHit->GetBodyInstance(BoneHit)->SetLinearVelocity(FVector::ZeroVector, false);
+		}
+	}
+}
+
+void AIceSpike::CreateSpike()
+{
+	if (CurrentNumberSpike < NumberMaxSpike)
+	{
+		CurrentNumberSpike++;
+		if (UWorld* world = GetWorld())
+		{
+			AIceSpike* spike = world->SpawnActor<AIceSpike>(IceSpike);
+			AllProjectile.Add(spike);
+		}
+	}
+	else
+	{
+		if (UWorld* world = GetWorld())
+		{
+			world->GetTimerManager().ClearTimer(TimerSpawn);
 		}
 	}
 }

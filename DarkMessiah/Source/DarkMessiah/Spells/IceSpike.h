@@ -21,13 +21,22 @@ public :
 
 	void LaunchSpell(FVector _direction) override;
 
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
 	FORCEINLINE class UCapsuleComponent* GetCapsuleComponent() const { return CollisionComp; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
+	void PrepareSecondSpell() override;
+
+	UPROPERTY(EditAnywhere)
+	int32 NumberMaxSpike;
+
+	UPROPERTY(EditAnywhere)
+	float TimerCreation;
+
 protected:
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AActor> Impalement;
+	TSubclassOf<class AIceSpike> IceSpike;
 
 	UPROPERTY(EditAnywhere)
 	float DistanceImpalement;
@@ -46,10 +55,17 @@ private:
 	void BeginPlay() override;
 	void Tick(float _deltaTime) override;
 
+	void CreateSpike();
+
+	TArray<AIceSpike*> AllProjectile;
+
 	FTimerHandle TimerDestruction;
+	FTimerHandle TimerSpawn;
 
 	bool HasImpaled;
 	bool bStopSpell;
+
+	int32 CurrentNumberSpike;
 
 	FVector PointImpactOnPawn;
 	FVector PointImpactOnStatic;

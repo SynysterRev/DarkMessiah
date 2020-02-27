@@ -106,6 +106,9 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ADarkMessiahCharacter::PrepareFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ADarkMessiahCharacter::OnFire);
+
+	PlayerInputComponent->BindAction("SecondFire", IE_Pressed, this, &ADarkMessiahCharacter::PrepareSecondFire);
+
 	PlayerInputComponent->BindAction("SelectSpell1", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell1);
 	PlayerInputComponent->BindAction("SelectSpell2", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell2);
 
@@ -237,6 +240,15 @@ void ADarkMessiahCharacter::PrepareFire()
 	if (spell != nullptr)
 	{
 		spell->PrepareSpell();
+		IsCasting = true;
+	}
+}
+
+void ADarkMessiahCharacter::PrepareSecondFire()
+{
+	if (spell != nullptr)
+	{
+		spell->PrepareSecondSpell();
 		IsCasting = true;
 	}
 }
