@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterTakeDamageDelegate, int32, _damage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterLoseHealthDelegate, int32, _damage);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DARKMESSIAH_API UHealthComponent : public UActorComponent
@@ -38,7 +38,7 @@ protected:
 
 public:	
 	UPROPERTY(BlueprintAssignable, Category = "Damage Taken")
-	FCharacterTakeDamageDelegate OnCharacterTakeDamage;
+		FCharacterLoseHealthDelegate OnCharacterTakeDamage;
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

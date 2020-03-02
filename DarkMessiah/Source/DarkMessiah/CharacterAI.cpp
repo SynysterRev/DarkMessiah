@@ -60,25 +60,21 @@ void ACharacterAI::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 	}
 }
 
-float ACharacterAI::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void ACharacterAI::TakeDamage(const int32 Damage, class AActor* _damageCauser)
 {
-	// Call the base class - this will tell us how much damage to apply  
-	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	if (HealthComponent == nullptr) return 0.0f;
-	if (HealthComponent->IsCharacterDead())
+	if (HealthComponent == nullptr || HealthComponent->IsCharacterDead()) return;
+
+	if (Damage > 0.0f)
 	{
-		return 0.0f;
-	}
-	if (ActualDamage > 0.0f)
-	{
-		HealthComponent->InflictDamage(ActualDamage);
+		HealthComponent->InflictDamage(Damage);
+		OnCharacterTakeDamage.Broadcast(Damage);
+		Event_OnTakeDamage_BP(Damage);
 		if (HealthComponent->IsCharacterDead())
 		{
 			ActivateRagDoll();
 			OnCharacterDied.Broadcast();
 		}
 	}
-	return ActualDamage;
 }
 
 // Called every frame

@@ -74,8 +74,7 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 				//inflict damage to the ai
 				if (Caster)
 				{
-					FDamageEvent damageEvent;
-					ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
+					ActorHit->TakeDamage(Damage, this);
 				}
 				PointImpactOnPawn = Hit.ImpactPoint;
 
