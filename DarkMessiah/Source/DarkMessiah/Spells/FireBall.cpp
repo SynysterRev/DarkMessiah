@@ -117,8 +117,3 @@ void AFireBall::PrepareSpell()
 	}
 }
 
-void AFireBall::InitSpell()
-{
-	Super::InitSpell();
-}
-

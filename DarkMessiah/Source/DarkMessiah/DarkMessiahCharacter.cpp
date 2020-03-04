@@ -18,6 +18,7 @@
 #include "Spells/IceSpike.h"
 #include "Helpers/HelperLibrary.h"
 #include "HealthComponent.h"
+#include "Spells/Recall.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -89,6 +90,20 @@ void ADarkMessiahCharacter::BeginPlay()
 	// try and fire a projectile
 	TypeSpell = ETypeSpell::FireBall;
 	CreateLaunchingSpell();
+	FActorSpawnParameters ActorSpawnParams;
+
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// spawn the projectile at the muzzle
+	if (UWorld* world = GetWorld())
+	{
+		SpecificRecallSpell = world->SpawnActor<ARecall>(RecallSpell, GetActorLocation(), GetActorRotation(), ActorSpawnParams);
+		if (SpecificRecallSpell != nullptr)
+		{
+			FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
+			SpecificRecallSpell->AttachToComponent(RootComponent, attachementPawn);
+			SpecificRecallSpell->InitSpell(this);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,6 +124,8 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	PlayerInputComponent->BindAction("SelectSpell1", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell1);
 	PlayerInputComponent->BindAction("SelectSpell2", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell2);
+
+	PlayerInputComponent->BindAction("Recall", IE_Pressed, this, &ADarkMessiahCharacter::CastRecall);
 
 
 	// Bind movement events
@@ -195,8 +212,7 @@ void ADarkMessiahCharacter::CreateLaunchingSpell()
 				{
 					FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
 					spell->AttachToComponent(SpellOffset, attachementPawn);
-					spell->InitSpell();
-					spell->Caster = this;
+					spell->InitSpell(this);
 				}
 			}
 		}
@@ -280,4 +296,9 @@ void ADarkMessiahCharacter::ClearSpell()
 		spell->DestroySpell();
 		spell = nullptr;
 	}
+}
+
+void ADarkMessiahCharacter::CastRecall()
+{
+	SpecificRecallSpell->LaunchSpell(FVector::ZeroVector);
 }

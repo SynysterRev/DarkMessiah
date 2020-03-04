@@ -42,7 +42,7 @@ public:
 	class ADarkMessiahCharacter* Caster;
 
 	UFUNCTION()
-		virtual void InitSpell();
+		virtual void InitSpell(class ADarkMessiahCharacter* _caster);
 
 	UFUNCTION()
 		virtual void PrepareSpell();

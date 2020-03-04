@@ -70,6 +70,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AIceSpike> IceSpell;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class ARecall> RecallSpell;
+
+	class ASpell* SpecificRecallSpell;
 	class ASpell* spell;
 
 	/** Sound to play each time we fire */
@@ -121,6 +125,8 @@ protected:
 	void ChangeSpell2();
 
 	void ClearSpell();
+
+	void CastRecall();
 
 protected:
 	// APawn interface
