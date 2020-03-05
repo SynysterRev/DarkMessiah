@@ -12,7 +12,8 @@ UENUM()
 enum class ETypeSpell
 {
 	FireBall UMETA(DisplayName = "FireBall"),
-	IceSpike UMETA(DisplayName = "IceSpike")
+	IceSpike UMETA(DisplayName = "IceSpike"),
+	BlackHole UMETA(DisplayName = "BlackHole")
 };
 
 UCLASS(config=Game)
@@ -71,6 +72,9 @@ public:
 	TSubclassOf<class AIceSpike> IceSpell;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class ABlackHole> BlackHoleSpell;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class ARecall> RecallSpell;
 
 	class ASpell* SpecificRecallSpell;
@@ -123,6 +127,8 @@ protected:
 	void ChangeSpell1();
 
 	void ChangeSpell2();
+
+	void ChangeSpell3();
 
 	void ClearSpell();
 
