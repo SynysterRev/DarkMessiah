@@ -61,7 +61,7 @@ public:
 	FVector GunOffset;
 
 	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(VisibleDefaultsOnly, Category = Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class USceneComponent* SpellOffset;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
@@ -70,6 +70,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AIceSpike> IceSpell;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class ARecall> RecallSpell;
+
+	class ASpell* SpecificRecallSpell;
 	class ASpell* spell;
 
 	/** Sound to play each time we fire */
@@ -85,7 +89,7 @@ public:
 	void OnFireSpell_Implementation(class ASpell* _spell);
 
 protected:
-
+	bool IsCasting;
 	/** Fires a projectile. */
 	void OnFire();
 
@@ -96,8 +100,6 @@ protected:
 
 	/** Handles stafing movement, left and right */
 	void MoveRight(float Val);
-
-	FTimerHandle m_timerSpawnFireBall;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float CDSpawnSpell;
@@ -116,11 +118,15 @@ protected:
 
 	void PrepareFire();
 
+	void PrepareSecondFire();
+
 	void ChangeSpell1();
 
 	void ChangeSpell2();
 
 	void ClearSpell();
+
+	void CastRecall();
 
 protected:
 	// APawn interface
