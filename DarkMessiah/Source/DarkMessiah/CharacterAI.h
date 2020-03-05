@@ -7,6 +7,8 @@
 #include "HealthComponent.h"
 #include "CharacterAI.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterDiedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterTakeDamageDelegate, int32, _damage);
 UCLASS()
 class DARKMESSIAH_API ACharacterAI : public ACharacter
 {
@@ -14,6 +16,9 @@ class DARKMESSIAH_API ACharacterAI : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
 		class UHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
+		class USceneComponent* Root;
 public:
 	// Sets default values for this character's properties
 	ACharacterAI();
@@ -28,10 +33,21 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool IsRagdollActivate;
 
+	UFUNCTION()
+	void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
+	UPROPERTY(BlueprintAssignable, Category = "Death")
+	FCharacterDiedDelegate OnCharacterDied;
+
+	UPROPERTY(BlueprintAssignable, Category = "Damage")
+	FCharacterTakeDamageDelegate OnCharacterTakeDamage;
+
 	UFUNCTION(BlueprintCallable)
-	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+	void TakeDamage(const int32 Damage, class AActor* _damageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Event_OnTakeDamage_BP(int32 _damageReceived);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

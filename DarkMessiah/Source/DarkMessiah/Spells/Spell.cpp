@@ -14,12 +14,16 @@ void ASpell::LaunchSpell(FVector _direction)
 
 }
 
-void ASpell::InitSpell()
+void ASpell::InitSpell(ADarkMessiahCharacter* _caster)
 {
-	
+	Caster = _caster;
 }
 
 void ASpell::PrepareSpell()
+{
+}
+
+void ASpell::PrepareSecondSpell()
 {
 }
 

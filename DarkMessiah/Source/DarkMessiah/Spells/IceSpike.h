@@ -21,16 +21,22 @@ public :
 
 	void LaunchSpell(FVector _direction) override;
 
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
 	FORCEINLINE class UCapsuleComponent* GetCapsuleComponent() const { return CollisionComp; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
-protected:
-	UFUNCTION(BlueprintCallable)
-	void ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, class AActor* OtherActor);
+	void PrepareSecondSpell() override;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AActor> Impalement;
+	int32 NumberMaxSpike;
+
+	UPROPERTY(EditAnywhere)
+	float TimerCreation;
+
+protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AIceSpike> IceSpike;
 
 	UPROPERTY(EditAnywhere)
 	float DistanceImpalement;
@@ -47,8 +53,29 @@ protected:
 private:
 
 	void BeginPlay() override;
-	
+	void Tick(float _deltaTime) override;
+
+	void CreateSpike();
+
+	TArray<AIceSpike*> AllProjectile;
+
 	FTimerHandle TimerDestruction;
+	FTimerHandle TimerSpawn;
+
+	bool HasImpaled;
+	bool bStopSpell;
+
+	int32 CurrentNumberSpike;
+
+	FVector PointImpactOnPawn;
+	FVector PointImpactOnStatic;
+	FVector DirVelocity;
+	FVector DirHit;
+	FVector bonePos;
+
+	FName BoneHit;
+	class UPrimitiveComponent* ComponentHit;
+	class USkeletalMeshComponent* MeshHit;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
@@ -61,7 +88,4 @@ private:
 
 	class UPhysicsConstraintComponent* ImpalementComponent;
 	class ACharacterAI* ActorHit;
-
-	void DestroyImpalement();
-
 };

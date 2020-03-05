@@ -48,8 +48,7 @@ void AFireBall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 					{
 						if (Caster)
 						{
-							FDamageEvent damageEvent;
-							charact->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
+							charact->TakeDamage(Damage, this);
 						}
 					}
 					UPrimitiveComponent* primitive = Cast<UPrimitiveComponent>(actor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
@@ -116,10 +115,5 @@ void AFireBall::PrepareSpell()
 	{
 		world->GetTimerManager().SetTimer(TimerPreparation, this, &AFireBall::IncreasePower, TimerIncrease, true);
 	}
-}
-
-void AFireBall::InitSpell()
-{
-	Super::InitSpell();
 }
 

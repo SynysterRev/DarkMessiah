@@ -11,6 +11,12 @@
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "CharacterAI.h"
 #include "DarkMessiahCharacter.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "CollisionQueryParams.h"
+#include "DarkMessiahCharacter.h"
+#include "Camera/CameraComponent.h"
+#include "Engine/World.h"
+#include "Math/Vector.h"
 
 AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 {
@@ -25,43 +31,24 @@ AIceSpike::AIceSpike(const FObjectInitializer& _objectInit)
 	ProjectileMovement->MaxSpeed = MaxSpeed;
 	CollisionComp->SetupAttachment(RootComponent);
 	Mesh->SetupAttachment(CollisionComp);
+	MeshHit = nullptr;
+	bStopSpell = false;
 }
 
 
 void AIceSpike::LaunchSpell(FVector _direction)
 {
-	GetProjectileMovement()->Velocity = _direction * Speed;
+	DirVelocity = _direction;
+	GetProjectileMovement()->Velocity = DirVelocity * Speed;
 	SetLifeSpan(2.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Projectile"));
 }
 
-
-void AIceSpike::ImpaleActor(const FHitResult& _hitStaticResult, const FHitResult& _hitPawnResult, AActor* OtherActor)
+void AIceSpike::PrepareSecondSpell()
 {
 	if (UWorld* world = GetWorld())
 	{
-		FVector direction;
-		FVector readjustPosition;
-		//spawn an actor with PhysicsConstraint to stuck pawn in a wall
-		ImpalementComponent = world->SpawnActor<AActor>(Impalement)->FindComponentByClass<UPhysicsConstraintComponent>();
-		if (ImpalementComponent != nullptr)
-		{
-			FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
-			ImpalementComponent->AttachToComponent(_hitPawnResult.GetComponent(), attachementToActor, _hitPawnResult.BoneName);
-
-			//readjust position of pawn to avoid it to thrill in the wall
-			direction = (GetActorLocation() - _hitStaticResult.ImpactPoint);
-			direction /= direction.Size();
-			readjustPosition = _hitStaticResult.ImpactPoint + direction * 5.0f;
-			OtherActor->SetActorLocation(readjustPosition);
-
-			SetLifeSpan(TimerBeforeDestruction);
-			world->GetTimerManager().SetTimer(TimerDestruction, this, &AIceSpike::DestroyImpalement, TimerBeforeDestruction, true);
-
-			//place the physics constraint on the wall to keep player stuck to the wall
-			ImpalementComponent->SetWorldLocation(_hitStaticResult.ImpactPoint);
-			ImpalementComponent->SetConstrainedComponents(_hitStaticResult.GetComponent(), _hitStaticResult.BoneName, _hitPawnResult.GetComponent(), _hitPawnResult.BoneName);
-		}
+		world->GetTimerManager().SetTimer(TimerSpawn, this, &AIceSpike::CreateSpike, TimerCreation, true);
 	}
 }
 
@@ -69,29 +56,35 @@ void AIceSpike::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 {
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
-		FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
-		AttachToComponent(OtherComp, attachementToActor, Hit.BoneName);
+		FVector velocity = GetProjectileMovement()->Velocity;
+		//attach spike to the actor hit
 		ActorHit = Cast<ACharacterAI>(OtherActor);
+
 		if (ActorHit != nullptr)
 		{
 			FHitResult hitResult;
-			FVector endLine = GetActorForwardVector() * DistanceImpalement;
 			FCollisionQueryParams collisionQueryParems;
+			BoneHit = Hit.BoneName;
+			ComponentHit = OtherComp;
+			FVector direction = (Hit.ImpactPoint - Caster->GetFirstPersonCameraComponent()->GetComponentLocation()).GetSafeNormal();
+			DirHit = direction;
+			
 			if (UWorld* world = GetWorld())
 			{
+				//inflict damage to the ai
 				if (Caster)
 				{
-					FDamageEvent damageEvent;
-					ActorHit->TakeDamage(Damage, damageEvent, Caster->GetController(), this);
+					ActorHit->TakeDamage(Damage, this);
 				}
-				bool hit = world->LineTraceSingleByObjectType(hitResult, Hit.ImpactPoint, endLine, ECC_WorldStatic, collisionQueryParems);
-				if (hit)
+				PointImpactOnPawn = Hit.ImpactPoint;
+
+				if (ActorHit->IsCharacterDead())
 				{
-					if (ActorHit->IsCharacterDead())
-					{
-						ImpaleActor(hitResult, Hit, OtherActor);
-					}
+					MeshHit = ActorHit->GetMesh();
 				}
+
+				FAttachmentTransformRules attachementToActor(EAttachmentRule::KeepWorld, false);
+				AttachToComponent(OtherComp, attachementToActor, Hit.BoneName);
 			}
 		}
 	}
@@ -105,13 +98,71 @@ void AIceSpike::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentHit.AddDynamic(this, &AIceSpike::OnHit);
+	CurrentNumberSpike = 1;
+	AllProjectile.Add(this);
 }
 
-void AIceSpike::DestroyImpalement()
+void AIceSpike::Tick(float _deltaTime)
 {
-	Destroy();
-	if (ImpalementComponent != nullptr)
+	if (MeshHit)
 	{
-		ImpalementComponent->DestroyComponent();
+		if (!bStopSpell)
+		{
+			//Attached Bone Follow Spell
+			GetProjectileMovement()->Velocity = DirHit * Speed;
+			MeshHit->SetPhysicsLinearVelocity(GetProjectileMovement()->Velocity, false, BoneHit);
+			FHitResult hit;
+			if (GetWorld()->LineTraceSingleByChannel(hit, Mesh->GetComponentLocation(), Mesh->GetComponentLocation() + DirHit * Speed*0.1f, ECollisionChannel::ECC_GameTraceChannel4))
+			{
+				bStopSpell = true;
+
+				GetProjectileMovement()->StopMovementImmediately();
+				SetLifeSpan(TimerBeforeDestruction);
+
+				bonePos = hit.Location + hit.Normal * 10.0f;
+				HelperLibrary::Print(hit.GetActor()->GetName());
+			}
+		}
+		else
+		{
+			//to do make a better stability pos
+			FTransform tr(bonePos);
+			MeshHit->GetBodyInstance(BoneHit)->SetBodyTransform(tr, ETeleportType::ResetPhysics);
+			MeshHit->GetBodyInstance(BoneHit)->SetLinearVelocity(FVector::ZeroVector, false);
+		}
 	}
 }
+
+void AIceSpike::CreateSpike()
+{
+	if (CurrentNumberSpike < NumberMaxSpike)
+	{
+		float test = 40.0f * CurrentNumberSpike;
+		CurrentNumberSpike++;
+		if (UWorld* world = GetWorld())
+		{
+			AIceSpike* spike = world->SpawnActor<AIceSpike>(IceSpike);
+			if (spike != nullptr)
+			{
+				FAttachmentTransformRules attachementPawn(EAttachmentRule::KeepWorld, false);
+				spike->AttachToActor(this, attachementPawn);
+				FVector location(GetActorLocation());
+				FVector radius(0.0f, 10.0f, 0.0f);
+				FVector RotateValue = radius.RotateAngleAxis(test, FVector(1.0f, 0.0f, 0.0f));
+				FVector pivot = GetActorLocation() + FVector(0.0f, 10.0f, 0.0f);
+
+				spike->SetActorLocation(RotateValue + pivot);
+				AllProjectile.Add(spike);
+			}
+		}
+	}
+	else
+	{
+		if (UWorld* world = GetWorld())
+		{
+			world->GetTimerManager().ClearTimer(TimerSpawn);
+		}
+	}
+}
+
+
