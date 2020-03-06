@@ -16,6 +16,7 @@
 #include "Engine/Engine.h"
 #include "Spells/FireBall.h"
 #include "Spells/IceSpike.h"
+#include "Spells/BlackHole.h"
 #include "Helpers/HelperLibrary.h"
 #include "HealthComponent.h"
 #include "Spells/Recall.h"
@@ -124,6 +125,7 @@ void ADarkMessiahCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	PlayerInputComponent->BindAction("SelectSpell1", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell1);
 	PlayerInputComponent->BindAction("SelectSpell2", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell2);
+	PlayerInputComponent->BindAction("SelectSpell3", IE_Pressed, this, &ADarkMessiahCharacter::ChangeSpell3);
 
 	PlayerInputComponent->BindAction("Recall", IE_Pressed, this, &ADarkMessiahCharacter::CastRecall);
 
@@ -207,6 +209,10 @@ void ADarkMessiahCharacter::CreateLaunchingSpell()
 				{
 					spell = World->SpawnActor<AIceSpike>(IceSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
 				}
+				else if (TypeSpell == ETypeSpell::BlackHole)
+				{
+					spell = World->SpawnActor<ABlackHole>(BlackHoleSpell, SpawnLocation, SpawnRotation, ActorSpawnParams);
+				}
 				//spell = static_cast<AFireBall*>(spell);
 				if (spell != nullptr)
 				{
@@ -282,6 +288,16 @@ void ADarkMessiahCharacter::ChangeSpell2()
 	if (TypeSpell != ETypeSpell::IceSpike)
 	{
 		TypeSpell = ETypeSpell::IceSpike;
+		ClearSpell();
+		CreateLaunchingSpell();
+	}
+}
+
+void ADarkMessiahCharacter::ChangeSpell3()
+{
+	if (TypeSpell != ETypeSpell::BlackHole)
+	{
+		TypeSpell = ETypeSpell::BlackHole;
 		ClearSpell();
 		CreateLaunchingSpell();
 	}
