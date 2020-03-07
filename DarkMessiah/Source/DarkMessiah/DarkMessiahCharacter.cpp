@@ -159,7 +159,7 @@ void ADarkMessiahCharacter::OnFire()
 			bool hit = world->LineTraceSingleByChannel(hitResult, FirstPersonCameraComponent->GetComponentLocation(), end,
 				ECC_Visibility, collisionQueryParems);
 			FVector direction;
-			direction = hit ? (hitResult.ImpactPoint - spell->GetActorLocation()).GetSafeNormal() : end;
+			direction = hit ? (hitResult.ImpactPoint - spell->GetActorLocation()).GetSafeNormal() : end.GetSafeNormal();
 			FDetachmentTransformRules detachementParam(EDetachmentRule::KeepWorld, false);
 			spell->DetachFromActor(detachementParam);
 			spell->LaunchSpell(direction);

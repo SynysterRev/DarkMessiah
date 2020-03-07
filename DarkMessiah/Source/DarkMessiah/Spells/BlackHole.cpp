@@ -9,6 +9,7 @@
 #include "CharacterAI.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ABlackHole::ABlackHole()
@@ -21,9 +22,16 @@ ABlackHole::ABlackHole()
 	ProjectileMovement->InitialSpeed = 0.0f;
 	ProjectileMovement->MaxSpeed = MaxSpeed;
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	WaveMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WaveMesh"));
+	DistorsionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DistorsionMesh"));
+	SecondRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SecondRoot"));
 	RootComponent = CollisionComp;
 	TriggerComp->SetupAttachment(CollisionComp);
-	MeshComponent->SetupAttachment(CollisionComp);
+	SecondRootComponent->SetupAttachment(CollisionComp);
+
+	MeshComponent->SetupAttachment(SecondRootComponent);
+	WaveMesh->SetupAttachment(SecondRootComponent);
+	DistorsionMesh->SetupAttachment(SecondRootComponent);
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -35,6 +43,8 @@ void ABlackHole::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 		{
 			if (ProjectileMovement != nullptr)
 				ProjectileMovement->Velocity = FVector::ZeroVector;
+			IsLaunch = false;
+			SetLifeSpan(SpanLife);
 		}
 	}
 }
@@ -46,6 +56,7 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		if (ACharacterAI* charact = Cast<ACharacterAI>(OtherActor))
 		{
 			EnemiesOverlapped.Add(charact);
+			charact->SlowCharacter(PercentageSlow / 100.0f);
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
 				EnemiesMeshesOverlapped.Add(skeletalMesh);
 		}
@@ -61,6 +72,7 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			if (EnemiesOverlapped.Contains(charact))
 			{
 				EnemiesOverlapped.Remove(charact);
+				charact->SlowCharacter(-(1 / (PercentageSlow / 100.0f)));
 			}
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
 			{
@@ -74,6 +86,7 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 void ABlackHole::LaunchSpell(FVector _direction)
 {
 	IsLaunch = true;
+	CanGrow = true;
 	LastPosition = GetActorLocation();
 	if (ProjectileMovement != nullptr)
 		ProjectileMovement->Velocity = _direction * Speed;
@@ -109,6 +122,15 @@ void ABlackHole::Tick(float _deltaTime)
 			IsLaunch = false;
 			SetLifeSpan(SpanLife);
 		}
+	}
+
+	if (CanGrow && SecondRootComponent->GetComponentScale().X < 6.0f)
+	{
+		SecondRootComponent->SetWorldScale3D(SecondRootComponent->GetComponentScale() + FVector(_deltaTime * 1.25f, _deltaTime * 1.25f, _deltaTime * 1.25f));
+	}
+	else
+	{
+		CanGrow = false;
 	}
 }
 
