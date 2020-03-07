@@ -8,6 +8,7 @@
 #include "Helpers/HelperLibrary.h"
 #include "CharacterAI.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ABlackHole::ABlackHole()
@@ -45,6 +46,8 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		if (ACharacterAI* charact = Cast<ACharacterAI>(OtherActor))
 		{
 			EnemiesOverlapped.Add(charact);
+			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
+				EnemiesMeshesOverlapped.Add(skeletalMesh);
 		}
 	}
 }
@@ -58,6 +61,11 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			if (EnemiesOverlapped.Contains(charact))
 			{
 				EnemiesOverlapped.Remove(charact);
+			}
+			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
+			{
+				if (EnemiesMeshesOverlapped.Contains(skeletalMesh))
+					EnemiesMeshesOverlapped.Add(skeletalMesh);
 			}
 		}
 	}
@@ -111,6 +119,8 @@ void ABlackHole::InflictDamage()
 		if (EnemiesOverlapped[i] != nullptr)
 		{
 			EnemiesOverlapped[i]->TakeDamage(Damage, this);
+			//EnemiesOverlapped[i]->GetMesh()->SetVectorParameterValueOnMaterials("Z value", )
+			//EnemiesMeshesOverlapped[i]->SetParameterValueOnMaterials()
 		}
 	}
 }

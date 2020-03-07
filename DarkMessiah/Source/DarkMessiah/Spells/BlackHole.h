@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float SpanLife;
 
+	UPROPERTY(EditAnywhere)
+	float TimeSuction;
+
 	void LaunchSpell(FVector _direction) override;
 
 	void BeginPlay() override;
@@ -67,6 +70,8 @@ private:
 	bool IsLaunch;
 
 	TArray<class ACharacterAI*> EnemiesOverlapped;
+
+	TArray<class USkeletalMeshComponent*> EnemiesMeshesOverlapped;
 
 	FVector LastPosition;
 
