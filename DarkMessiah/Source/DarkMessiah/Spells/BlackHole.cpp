@@ -58,14 +58,21 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			EnemiesOverlapped.Add(charact);
 			charact->SlowCharacter(PercentageSlow / 100.0f);
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
-				EnemiesMeshesOverlapped.Add(skeletalMesh);
+			{
+				HelperLibrary::Print("cc");
+				if (skeletalMesh->GetMaterial(0)->GetName() == "M_UE4Man_Body_Distortion_Inst")
+				{
+					EnemiesMeshesOverlapped.Add(skeletalMesh);
+					TimersAbsorption.Add(1.0f);
+				}
+			}
 		}
 	}
 }
 
 void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if ((OverlappedComponent != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if ((OverlappedComponent != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && CanGrow)
 	{
 		if (ACharacterAI* charact = Cast<ACharacterAI>(OtherActor))
 		{
@@ -79,7 +86,12 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
 			{
 				if (EnemiesMeshesOverlapped.Contains(skeletalMesh))
-					EnemiesMeshesOverlapped.Add(skeletalMesh);
+				{
+					int32 indexEnemy = EnemiesMeshesOverlapped.Find(skeletalMesh);
+					TimersAbsorption.RemoveAt(indexEnemy);
+					EnemiesMeshesOverlapped[indexEnemy]->SetScalarParameterValueOnMaterials("Z value", 1.0f);
+					EnemiesMeshesOverlapped.Remove(skeletalMesh);
+				}
 			}
 		}
 	}
@@ -124,15 +136,27 @@ void ABlackHole::Tick(float _deltaTime)
 			IsLaunch = false;
 			SetLifeSpan(SpanLife);
 		}
+		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
+		{
+			EnemiesMeshesOverlapped[i]->SetVectorParameterValueOnMaterials("Location", GetActorLocation());
+		}
 	}
 
-	if (CanGrow && SecondRootComponent->GetComponentScale().X < 6.0f)
+	if (CanGrow)
 	{
-		SecondRootComponent->SetWorldScale3D(SecondRootComponent->GetComponentScale() + FVector(_deltaTime * 1.25f, _deltaTime * 1.25f, _deltaTime * 1.25f));
-	}
-	else
-	{
-		CanGrow = false;
+		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
+		{
+			HelperLibrary::Print(FString::FromInt(i) + " " + FString::SanitizeFloat(TimersAbsorption[i]));
+			if (TimersAbsorption[i] > 0.0f)
+			{
+				TimersAbsorption[i] -= _deltaTime * 0.3f;
+				EnemiesMeshesOverlapped[i]->SetScalarParameterValueOnMaterials("Z value", TimersAbsorption[i]);
+			}
+		}
+		if (SecondRootComponent->GetComponentScale().X < 6.0f)
+		{
+			SecondRootComponent->SetWorldScale3D(SecondRootComponent->GetComponentScale() + FVector(_deltaTime * 1.25f, _deltaTime * 1.25f, _deltaTime * 1.25f));
+		}
 	}
 }
 
@@ -143,8 +167,6 @@ void ABlackHole::InflictDamage()
 		if (EnemiesOverlapped[i] != nullptr)
 		{
 			EnemiesOverlapped[i]->TakeDamage(Damage, this);
-			//EnemiesOverlapped[i]->GetMesh()->SetVectorParameterValueOnMaterials("Z value", )
-			//EnemiesMeshesOverlapped[i]->SetParameterValueOnMaterials()
 		}
 	}
 }

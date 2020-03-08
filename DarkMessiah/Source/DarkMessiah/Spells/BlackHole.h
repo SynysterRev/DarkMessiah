@@ -79,6 +79,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Gameplay)
 		bool CanGrow;
+
 private:
 	UPROPERTY()
 	float CurrentDistance;
@@ -88,7 +89,10 @@ private:
 
 	TArray<class ACharacterAI*> EnemiesOverlapped;
 
+	UPROPERTY(VisibleAnywhere)
 	TArray<class USkeletalMeshComponent*> EnemiesMeshesOverlapped;
+
+	TArray<float> TimersAbsorption;
 
 	FVector LastPosition;
 
