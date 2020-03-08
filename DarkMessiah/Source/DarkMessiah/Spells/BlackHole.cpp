@@ -72,7 +72,9 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			if (EnemiesOverlapped.Contains(charact))
 			{
 				EnemiesOverlapped.Remove(charact);
-				charact->SlowCharacter(-(1 / (PercentageSlow / 100.0f)));
+				float verif = (PercentageSlow / 100.0f);
+				if (verif > 0.0f)
+					charact->SpeedUpCharacter(1.0f / verif);
 			}
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
 			{

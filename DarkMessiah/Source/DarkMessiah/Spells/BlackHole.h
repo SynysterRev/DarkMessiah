@@ -77,15 +77,14 @@ protected:
 
 	void Tick(float _deltaTime) override;
 
+	UPROPERTY(BlueprintReadOnly, Category = Gameplay)
+		bool CanGrow;
 private:
 	UPROPERTY()
 	float CurrentDistance;
 	
 	UPROPERTY()
 	bool IsLaunch;
-
-	UPROPERTY()
-	bool CanGrow;
 
 	TArray<class ACharacterAI*> EnemiesOverlapped;
 

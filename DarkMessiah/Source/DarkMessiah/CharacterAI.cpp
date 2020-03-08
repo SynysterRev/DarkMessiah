@@ -83,6 +83,16 @@ void ACharacterAI::SlowCharacter(float _percentageSlow)
 		GetCharacterMovement()->MaxWalkSpeed -= GetCharacterMovement()->MaxWalkSpeed * _percentageSlow;
 }
 
+void ACharacterAI::SpeedUpCharacter(float _percentageSpeedUp)
+{
+	if (GetCharacterMovement() && _percentageSpeedUp < 1.0f)
+		GetCharacterMovement()->MaxWalkSpeed += GetCharacterMovement()->MaxWalkSpeed * _percentageSpeedUp;
+	else if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed *= _percentageSpeedUp;
+	}
+}
+
 // Called every frame
 void ACharacterAI::Tick(float DeltaTime)
 {

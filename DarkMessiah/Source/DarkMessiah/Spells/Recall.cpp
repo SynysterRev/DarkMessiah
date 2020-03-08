@@ -51,7 +51,7 @@ void ARecall::Tick(float _deltaTime)
 		}
 		else
 		{
-			FTransform tr = UKismetMathLibrary::TLerp(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], _deltaTime * 100.0f);
+			FTransform tr = UKismetMathLibrary::TLerp(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], _deltaTime * 80.0f);
 			Caster->SetActorLocation(tr.GetLocation());
 			FRotator rotator = UKismetMathLibrary::RLerp(Caster->GetActorRotation(), tr.GetRotation().Rotator(), _deltaTime * 50.0f, false);
 			Caster->SetActorRotation(rotator);
