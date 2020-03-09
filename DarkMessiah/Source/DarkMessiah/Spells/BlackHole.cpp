@@ -60,8 +60,10 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
 			{
 				HelperLibrary::Print("cc");
+				HelperLibrary::Print(skeletalMesh->GetMaterial(0)->GetName());
 				if (skeletalMesh->GetMaterial(0)->GetName() == "M_UE4Man_Body_Distortion_Inst")
 				{
+					HelperLibrary::Print("azeazeazr");
 					EnemiesMeshesOverlapped.Add(skeletalMesh);
 					TimersAbsorption.Add(1.0f);
 				}
@@ -136,6 +138,7 @@ void ABlackHole::Tick(float _deltaTime)
 			IsLaunch = false;
 			SetLifeSpan(SpanLife);
 		}
+
 		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
 		{
 			EnemiesMeshesOverlapped[i]->SetVectorParameterValueOnMaterials("Location", GetActorLocation());
@@ -146,10 +149,10 @@ void ABlackHole::Tick(float _deltaTime)
 	{
 		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
 		{
-			HelperLibrary::Print(FString::FromInt(i) + " " + FString::SanitizeFloat(TimersAbsorption[i]));
+			//HelperLibrary::Print(FString::FromInt(i) + " " + FString::SanitizeFloat(TimersAbsorption[i]));
 			if (TimersAbsorption[i] > 0.0f)
 			{
-				TimersAbsorption[i] -= _deltaTime * 0.3f;
+				TimersAbsorption[i] = FMath::Clamp(TimersAbsorption[i] - _deltaTime * 0.3f, 0.0f, 1.0f);
 				EnemiesMeshesOverlapped[i]->SetScalarParameterValueOnMaterials("Z value", TimersAbsorption[i]);
 			}
 		}
