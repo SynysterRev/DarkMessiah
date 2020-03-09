@@ -22,7 +22,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float TimeBetweenEachPosition;
-
+	
 	UPROPERTY()
 	TArray<FTransform> PreviousPositions;
 
@@ -33,4 +33,5 @@ private:
 	void RegisterPosition();
 	UWorld* world;
 	bool IsSpellCast;
+	float GravityScale;
 };

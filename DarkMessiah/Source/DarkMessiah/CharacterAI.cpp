@@ -12,7 +12,7 @@
 // Sets default values
 ACharacterAI::ACharacterAI()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	Root->SetupAttachment(GetCapsuleComponent());
@@ -74,6 +74,22 @@ void ACharacterAI::TakeDamage(const int32 Damage, class AActor* _damageCauser)
 			ActivateRagDoll();
 			OnCharacterDied.Broadcast();
 		}
+	}
+}
+
+void ACharacterAI::SlowCharacter(float _percentageSlow)
+{
+	if (GetCharacterMovement())
+		GetCharacterMovement()->MaxWalkSpeed -= GetCharacterMovement()->MaxWalkSpeed * _percentageSlow;
+}
+
+void ACharacterAI::SpeedUpCharacter(float _percentageSpeedUp)
+{
+	if (GetCharacterMovement() && _percentageSpeedUp < 1.0f)
+		GetCharacterMovement()->MaxWalkSpeed += GetCharacterMovement()->MaxWalkSpeed * _percentageSpeedUp;
+	else if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed *= _percentageSpeedUp;
 	}
 }
 

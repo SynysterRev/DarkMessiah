@@ -48,6 +48,13 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void Event_OnTakeDamage_BP(int32 _damageReceived);
+
+	UFUNCTION()
+	void SlowCharacter(float _percentageSlow);
+
+	UFUNCTION()
+	void SpeedUpCharacter(float _percentageSpeedUp);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

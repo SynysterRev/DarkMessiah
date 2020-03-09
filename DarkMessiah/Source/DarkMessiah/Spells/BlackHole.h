@@ -38,6 +38,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* WaveMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* DistorsionMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* SecondRootComponent;
+
 	UPROPERTY(VisibleAnywhere)
 	class UActorComponent* DistorsionActor;
 
@@ -53,11 +62,23 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float SpanLife;
 
+	UPROPERTY(EditAnywhere)
+	float TimeSuction;
+
+	UPROPERTY(EditAnywhere)
+	float MaxSize;
+
+	UPROPERTY(EditAnywhere)
+	float PercentageSlow;
+
 	void LaunchSpell(FVector _direction) override;
 
 	void BeginPlay() override;
 
 	void Tick(float _deltaTime) override;
+
+	UPROPERTY(BlueprintReadOnly, Category = Gameplay)
+		bool CanGrow;
 
 private:
 	UPROPERTY()
@@ -67,6 +88,11 @@ private:
 	bool IsLaunch;
 
 	TArray<class ACharacterAI*> EnemiesOverlapped;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<class USkeletalMeshComponent*> EnemiesMeshesOverlapped;
+
+	TArray<float> TimersAbsorption;
 
 	FVector LastPosition;
 

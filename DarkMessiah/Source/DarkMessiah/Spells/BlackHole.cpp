@@ -8,6 +8,8 @@
 #include "Helpers/HelperLibrary.h"
 #include "CharacterAI.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ABlackHole::ABlackHole()
@@ -20,9 +22,16 @@ ABlackHole::ABlackHole()
 	ProjectileMovement->InitialSpeed = 0.0f;
 	ProjectileMovement->MaxSpeed = MaxSpeed;
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	WaveMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WaveMesh"));
+	DistorsionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DistorsionMesh"));
+	SecondRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SecondRoot"));
 	RootComponent = CollisionComp;
 	TriggerComp->SetupAttachment(CollisionComp);
-	MeshComponent->SetupAttachment(CollisionComp);
+	SecondRootComponent->SetupAttachment(CollisionComp);
+
+	MeshComponent->SetupAttachment(SecondRootComponent);
+	WaveMesh->SetupAttachment(SecondRootComponent);
+	DistorsionMesh->SetupAttachment(SecondRootComponent);
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -34,6 +43,8 @@ void ABlackHole::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 		{
 			if (ProjectileMovement != nullptr)
 				ProjectileMovement->Velocity = FVector::ZeroVector;
+			IsLaunch = false;
+			SetLifeSpan(SpanLife);
 		}
 	}
 }
@@ -45,19 +56,44 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		if (ACharacterAI* charact = Cast<ACharacterAI>(OtherActor))
 		{
 			EnemiesOverlapped.Add(charact);
+			charact->SlowCharacter(PercentageSlow / 100.0f);
+			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
+			{
+				HelperLibrary::Print("cc");
+				HelperLibrary::Print(skeletalMesh->GetMaterial(0)->GetName());
+				if (skeletalMesh->GetMaterial(0)->GetName() == "M_UE4Man_Body_Distortion_Inst")
+				{
+					HelperLibrary::Print("azeazeazr");
+					EnemiesMeshesOverlapped.Add(skeletalMesh);
+					TimersAbsorption.Add(1.0f);
+				}
+			}
 		}
 	}
 }
 
 void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if ((OverlappedComponent != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if ((OverlappedComponent != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && CanGrow)
 	{
 		if (ACharacterAI* charact = Cast<ACharacterAI>(OtherActor))
 		{
 			if (EnemiesOverlapped.Contains(charact))
 			{
 				EnemiesOverlapped.Remove(charact);
+				float verif = (PercentageSlow / 100.0f);
+				if (verif > 0.0f)
+					charact->SpeedUpCharacter(1.0f / verif);
+			}
+			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
+			{
+				if (EnemiesMeshesOverlapped.Contains(skeletalMesh))
+				{
+					int32 indexEnemy = EnemiesMeshesOverlapped.Find(skeletalMesh);
+					TimersAbsorption.RemoveAt(indexEnemy);
+					EnemiesMeshesOverlapped[indexEnemy]->SetScalarParameterValueOnMaterials("Z value", 1.0f);
+					EnemiesMeshesOverlapped.Remove(skeletalMesh);
+				}
 			}
 		}
 	}
@@ -66,6 +102,7 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 void ABlackHole::LaunchSpell(FVector _direction)
 {
 	IsLaunch = true;
+	CanGrow = true;
 	LastPosition = GetActorLocation();
 	if (ProjectileMovement != nullptr)
 		ProjectileMovement->Velocity = _direction * Speed;
@@ -100,6 +137,28 @@ void ABlackHole::Tick(float _deltaTime)
 				ProjectileMovement->Velocity = FVector::ZeroVector;
 			IsLaunch = false;
 			SetLifeSpan(SpanLife);
+		}
+
+		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
+		{
+			EnemiesMeshesOverlapped[i]->SetVectorParameterValueOnMaterials("Location", GetActorLocation());
+		}
+	}
+
+	if (CanGrow)
+	{
+		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
+		{
+			//HelperLibrary::Print(FString::FromInt(i) + " " + FString::SanitizeFloat(TimersAbsorption[i]));
+			if (TimersAbsorption[i] > 0.0f)
+			{
+				TimersAbsorption[i] = FMath::Clamp(TimersAbsorption[i] - _deltaTime * 0.3f, 0.0f, 1.0f);
+				EnemiesMeshesOverlapped[i]->SetScalarParameterValueOnMaterials("Z value", TimersAbsorption[i]);
+			}
+		}
+		if (SecondRootComponent->GetComponentScale().X < 6.0f)
+		{
+			SecondRootComponent->SetWorldScale3D(SecondRootComponent->GetComponentScale() + FVector(_deltaTime * 1.25f, _deltaTime * 1.25f, _deltaTime * 1.25f));
 		}
 	}
 }
