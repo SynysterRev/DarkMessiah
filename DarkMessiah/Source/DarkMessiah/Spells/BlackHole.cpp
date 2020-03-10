@@ -58,12 +58,9 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			EnemiesOverlapped.Add(charact);
 			charact->SlowCharacter(PercentageSlow / 100.0f);
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
-			{
-				HelperLibrary::Print("cc");
-				HelperLibrary::Print(skeletalMesh->GetMaterial(0)->GetName());
+			{				
 				if (skeletalMesh->GetMaterial(0)->GetName() == "M_UE4Man_Body_Distortion_Inst")
 				{
-					HelperLibrary::Print("azeazeazr");
 					EnemiesMeshesOverlapped.Add(skeletalMesh);
 					TimersAbsorption.Add(1.0f);
 				}
@@ -108,6 +105,7 @@ void ABlackHole::LaunchSpell(FVector _direction)
 		ProjectileMovement->Velocity = _direction * Speed;
 	CollisionComp->SetCollisionProfileName(TEXT("ProjectileWithoutColl"));
 	TriggerComp->SetCollisionProfileName(TEXT("TriggerDmg"));
+	SetActorRotation(FQuat::Identity);
 	if (UWorld* world = GetWorld())
 	{
 		FTimerHandle TimerHandleDamage;

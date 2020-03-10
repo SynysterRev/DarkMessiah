@@ -51,10 +51,13 @@ void ARecall::Tick(float _deltaTime)
 		}
 		else
 		{
-			FTransform tr = UKismetMathLibrary::TLerp(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], _deltaTime * 80.0f);
+			Caster->LaunchCharacter((PreviousPositions[PreviousPositions.Num() - 1].GetLocation() - Caster->GetActorLocation()).GetSafeNormal() * 1000.0f, true, true);
+			//Caster->AddMovementInput(, 1.0f);
+			/*FTransform tr = UKismetMathLibrary::TLerp(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], _deltaTime * 80.0f);
 			Caster->SetActorLocation(tr.GetLocation());
+
 			FRotator rotator = UKismetMathLibrary::RLerp(Caster->GetActorRotation(), tr.GetRotation().Rotator(), _deltaTime * 50.0f, false);
-			Caster->SetActorRotation(rotator);
+			Caster->SetActorRotation(rotator);*/
 			if (UKismetMathLibrary::NearlyEqual_TransformTransform(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], 5.0f, 5.0f))
 			{
 				PreviousPositions.RemoveAt(PreviousPositions.Num() - 1);
