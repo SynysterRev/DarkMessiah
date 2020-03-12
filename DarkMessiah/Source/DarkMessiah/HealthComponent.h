@@ -27,8 +27,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE int32 GetLife() { return Health; }
 
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE int32 GetMaxLife() { return MaxHealth; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetPercentHealth() { return (float)Health / (float)MaxHealth; }
@@ -40,6 +38,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Damage Taken")
 		FCharacterLoseHealthDelegate OnCharacterTakeDamage;
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE int32 GetMaxLife() { return MaxHealth; }
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

@@ -41,7 +41,6 @@ void ACharacterAI::ActivateRagDoll()
 		GetCharacterMovement()->StopMovementImmediately();
 		if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 		{
-			//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			CapsuleComp->DestroyComponent();
 		}
 		RootComponent = Root;
@@ -91,6 +90,12 @@ void ACharacterAI::SpeedUpCharacter(float _percentageSpeedUp)
 	{
 		GetCharacterMovement()->MaxWalkSpeed *= _percentageSpeedUp;
 	}
+}
+
+void ACharacterAI::InstaKill()
+{
+	HealthComponent->InflictDamage(HealthComponent->GetMaxLife());
+	Destroy();
 }
 
 // Called every frame

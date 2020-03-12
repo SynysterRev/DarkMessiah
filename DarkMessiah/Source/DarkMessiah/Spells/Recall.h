@@ -15,6 +15,9 @@ class DARKMESSIAH_API ARecall : public ASpell
 	GENERATED_BODY()
 public :
 	void LaunchSpell(FVector _direction) override;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "LaunchRecall")
+	void Event_RecallLaunch_BP();
 protected:
 
 	UPROPERTY(EditAnywhere)
@@ -28,10 +31,12 @@ protected:
 
 	void Tick(float _deltaTime) override;
 	void BeginPlay() override;
+
 private:
 	FTimerHandle TimerHandlePosition;
 	void RegisterPosition();
 	UWorld* world;
 	bool IsSpellCast;
 	float GravityScale;
+	float Timer = 0.0f;
 };
