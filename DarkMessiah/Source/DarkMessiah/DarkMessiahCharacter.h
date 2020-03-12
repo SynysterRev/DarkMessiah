@@ -92,6 +92,9 @@ public:
 	void OnFireSpell(class ASpell* _spell);
 	void OnFireSpell_Implementation(class ASpell* _spell);
 
+	UFUNCTION()
+		void ResetCollision();
+
 protected:
 	bool IsCasting;
 	/** Fires a projectile. */

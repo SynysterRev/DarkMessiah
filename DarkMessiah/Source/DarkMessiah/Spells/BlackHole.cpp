@@ -11,13 +11,14 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 ABlackHole::ABlackHole()
 {
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	TriggerComp = CreateDefaultSubobject<USphereComponent>(TEXT("TriggerComp"));
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	ProjectileMovement->UpdatedComponent = CollisionComp;
+	ProjectileMovement->UpdatedComponent = RootComponent;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 	ProjectileMovement->InitialSpeed = 0.0f;
 	ProjectileMovement->MaxSpeed = MaxSpeed;
@@ -25,8 +26,10 @@ ABlackHole::ABlackHole()
 	WaveMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WaveMesh"));
 	DistorsionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DistorsionMesh"));
 	SecondRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SecondRoot"));
-	RootComponent = CollisionComp;
-	TriggerComp->SetupAttachment(CollisionComp);
+	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = RootComp;
+	CollisionComp->SetupAttachment(RootComp);
+	TriggerComp->SetupAttachment(RootComp);
 	SecondRootComponent->SetupAttachment(CollisionComp);
 
 	MeshComponent->SetupAttachment(SecondRootComponent);
@@ -37,7 +40,21 @@ ABlackHole::ABlackHole()
 
 void ABlackHole::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if ((HitComp != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		if (OtherComp->Mobility == EComponentMobility::Static)
+		{
+			if (ProjectileMovement != nullptr)
+				ProjectileMovement->Velocity = FVector::ZeroVector;
+			IsLaunch = false;
+			SetLifeSpan(SpanLife);
+		}
+	}
+}
+
+void ABlackHole::BeginOverlapHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if ((OverlappedComponent != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
 		if (OtherComp->Mobility == EComponentMobility::Static)
 		{
@@ -58,14 +75,15 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			EnemiesOverlapped.Add(charact);
 			charact->SlowCharacter(PercentageSlow / 100.0f);
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
-			{
-				HelperLibrary::Print("cc");
-				HelperLibrary::Print(skeletalMesh->GetMaterial(0)->GetName());
-				if (skeletalMesh->GetMaterial(0)->GetName() == "M_UE4Man_Body_Distortion_Inst")
+			{				
+				if (skeletalMesh->GetMaterial(0) != nullptr)
 				{
-					HelperLibrary::Print("azeazeazr");
-					EnemiesMeshesOverlapped.Add(skeletalMesh);
-					TimersAbsorption.Add(1.0f);
+					UPhysicalMaterial* physMat = skeletalMesh->GetMaterial(0)->GetPhysicalMaterial();
+					if (physMat != nullptr && physMat->SurfaceType == SurfaceType1)
+					{
+						EnemiesMeshesOverlapped.Add(skeletalMesh);
+						TimersAbsorption.Add(1.0f);
+					}
 				}
 			}
 		}
@@ -108,6 +126,7 @@ void ABlackHole::LaunchSpell(FVector _direction)
 		ProjectileMovement->Velocity = _direction * Speed;
 	CollisionComp->SetCollisionProfileName(TEXT("ProjectileWithoutColl"));
 	TriggerComp->SetCollisionProfileName(TEXT("TriggerDmg"));
+	SetActorRotation(FQuat::Identity);
 	if (UWorld* world = GetWorld())
 	{
 		FTimerHandle TimerHandleDamage;
@@ -119,6 +138,7 @@ void ABlackHole::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentHit.AddDynamic(this, &ABlackHole::OnHit);
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ABlackHole::BeginOverlapHit);
 	TriggerComp->OnComponentBeginOverlap.AddDynamic(this, &ABlackHole::BeginOverlap);
 	TriggerComp->OnComponentEndOverlap.AddDynamic(this, &ABlackHole::EndOverlap);
 	DistorsionActor = FindComponentByClass<UActorComponent>();
@@ -149,16 +169,19 @@ void ABlackHole::Tick(float _deltaTime)
 	{
 		for (int i = 0; i < EnemiesMeshesOverlapped.Num(); ++i)
 		{
-			//HelperLibrary::Print(FString::FromInt(i) + " " + FString::SanitizeFloat(TimersAbsorption[i]));
 			if (TimersAbsorption[i] > 0.0f)
 			{
 				TimersAbsorption[i] = FMath::Clamp(TimersAbsorption[i] - _deltaTime * 0.3f, 0.0f, 1.0f);
 				EnemiesMeshesOverlapped[i]->SetScalarParameterValueOnMaterials("Z value", TimersAbsorption[i]);
 			}
+			else
+			{
+					EnemiesOverlapped[i]->InstaKill();
+			}
 		}
-		if (SecondRootComponent->GetComponentScale().X < 6.0f)
+		if (CollisionComp->GetComponentScale().X < 6.0f)
 		{
-			SecondRootComponent->SetWorldScale3D(SecondRootComponent->GetComponentScale() + FVector(_deltaTime * 1.25f, _deltaTime * 1.25f, _deltaTime * 1.25f));
+			CollisionComp->SetWorldScale3D(CollisionComp->GetComponentScale() + FVector(_deltaTime * 1.25f, _deltaTime * 1.25f, _deltaTime * 1.25f));
 		}
 	}
 }
