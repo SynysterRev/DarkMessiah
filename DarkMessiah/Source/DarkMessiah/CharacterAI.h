@@ -53,7 +53,10 @@ public:
 	void SlowCharacter(float _percentageSlow);
 
 	UFUNCTION()
-	void SpeedUpCharacter(float _percentageSpeedUp);
+		void SpeedUpCharacter(float _percentageSpeedUp);
+
+	UFUNCTION()
+	void InstaKill();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

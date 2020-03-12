@@ -147,6 +147,12 @@ void ADarkMessiahCharacter::OnFireSpell_Implementation(ASpell* _spell)
 {
 }
 
+void ADarkMessiahCharacter::ResetCollision()
+{
+	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
+}
+
 void ADarkMessiahCharacter::OnFire()
 {
 	if (spell != nullptr && IsCasting)

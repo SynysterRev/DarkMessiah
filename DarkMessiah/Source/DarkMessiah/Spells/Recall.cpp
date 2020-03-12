@@ -12,6 +12,7 @@
 void ARecall::LaunchSpell(FVector _direction)
 {
 	IsSpellCast = true;
+	Event_RecallLaunch_BP();
 	if (world != nullptr)
 	{
 		world->GetTimerManager().ClearTimer(TimerHandlePosition);
@@ -35,6 +36,7 @@ void ARecall::Tick(float _deltaTime)
 	Super::Tick(_deltaTime);
 	if (IsSpellCast)
 	{
+		Timer += _deltaTime * Speed;
 		if (PreviousPositions.Num() == 0)
 		{
 			IsSpellCast = false;
@@ -51,15 +53,17 @@ void ARecall::Tick(float _deltaTime)
 		}
 		else
 		{
-			Caster->LaunchCharacter((PreviousPositions[PreviousPositions.Num() - 1].GetLocation() - Caster->GetActorLocation()).GetSafeNormal() * 1000.0f, true, true);
-			//Caster->AddMovementInput(, 1.0f);
+			//Caster->LaunchCharacter((PreviousPositions[PreviousPositions.Num() - 1].GetLocation() - Caster->GetActorLocation()).GetSafeNormal() * 1000.0f, true, true);
+			FVector nextPosition = PreviousPositions[PreviousPositions.Num() - 1].GetLocation();
+			Caster->SetActorLocation(FMath::Lerp(Caster->GetTargetLocation(), nextPosition, Timer));
 			/*FTransform tr = UKismetMathLibrary::TLerp(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], _deltaTime * 80.0f);
-			Caster->SetActorLocation(tr.GetLocation());
+			Caster->SetActorLocation(tr.GetLocation());*/
 
-			FRotator rotator = UKismetMathLibrary::RLerp(Caster->GetActorRotation(), tr.GetRotation().Rotator(), _deltaTime * 50.0f, false);
+			/*FRotator rotator = UKismetMathLibrary::RLerp(Caster->GetActorRotation(), tr.GetRotation().Rotator(), _deltaTime * 50.0f, false);
 			Caster->SetActorRotation(rotator);*/
-			if (UKismetMathLibrary::NearlyEqual_TransformTransform(Caster->GetTransform(), PreviousPositions[PreviousPositions.Num() - 1], 5.0f, 5.0f))
+			if (Timer >= 1.0f)
 			{
+				Timer = 0.0f;
 				PreviousPositions.RemoveAt(PreviousPositions.Num() - 1);
 			}
 		}
