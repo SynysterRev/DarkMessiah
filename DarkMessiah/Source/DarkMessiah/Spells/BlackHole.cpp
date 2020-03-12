@@ -75,7 +75,7 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			EnemiesOverlapped.Add(charact);
 			charact->SlowCharacter(PercentageSlow / 100.0f);
 			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
-			{				
+			{
 				if (skeletalMesh->GetMaterial(0) != nullptr)
 				{
 					UPhysicalMaterial* physMat = skeletalMesh->GetMaterial(0)->GetPhysicalMaterial();
@@ -176,7 +176,7 @@ void ABlackHole::Tick(float _deltaTime)
 			}
 			else
 			{
-					EnemiesOverlapped[i]->InstaKill();
+				EnemiesOverlapped[i]->InstaKill();
 			}
 		}
 		if (CollisionComp->GetComponentScale().X < 6.0f)
