@@ -61,6 +61,9 @@ void ARecall::Tick(float _deltaTime)
 				PreviousPositions.RemoveAt(PreviousPositions.Num() - 1);
 			}
 		}
+
+		if (PreviousPositions.Num() == 0)
+			Event_RecallEnd_BP();
 	}
 }
 

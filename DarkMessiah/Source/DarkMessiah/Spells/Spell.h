@@ -38,7 +38,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		virtual void LaunchSpell(FVector _direction);
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	class ADarkMessiahCharacter* Caster;
 
 	UFUNCTION()
