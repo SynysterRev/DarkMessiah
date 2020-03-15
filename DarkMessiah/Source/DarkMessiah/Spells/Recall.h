@@ -16,8 +16,11 @@ class DARKMESSIAH_API ARecall : public ASpell
 public :
 	void LaunchSpell(FVector _direction) override;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "LaunchRecall")
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "Executing Recall", Category = "LaunchRecall")
 	void Event_RecallLaunch_BP();
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "Ending Recall", Category = "LaunchRecall")
+	void Event_RecallEnd_BP();
 protected:
 
 	UPROPERTY(EditAnywhere)
