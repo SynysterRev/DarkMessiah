@@ -125,7 +125,6 @@ void AIceSpike::Tick(float _deltaTime)
 		}
 		else
 		{
-			//to do make a better stability pos
 			FTransform tr(bonePos);
 			MeshHit->GetBodyInstance(BoneHit)->SetBodyTransform(tr, ETeleportType::ResetPhysics);
 			MeshHit->GetBodyInstance(BoneHit)->SetLinearVelocity(FVector::ZeroVector, false);

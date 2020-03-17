@@ -39,6 +39,8 @@ private:
 	FTimerHandle TimerHandlePosition;
 	void RegisterPosition();
 	UWorld* world;
+	FVector nextPosition;
+	FVector LastPosition;
 	bool IsSpellCast;
 	float GravityScale;
 	float Timer = 0.0f;
