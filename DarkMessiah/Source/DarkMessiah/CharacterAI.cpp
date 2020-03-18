@@ -66,7 +66,7 @@ void ACharacterAI::TakeDamage(const int32 Damage, class AActor* _damageCauser)
 	if (Damage > 0.0f)
 	{
 		HealthComponent->InflictDamage(Damage);
-		OnCharacterTakeDamage.Broadcast(Damage);
+		//OnCharacterTakeDamage.Broadcast(Damage);
 		Event_OnTakeDamage_BP(Damage);
 		if (HealthComponent->IsCharacterDead())
 		{
@@ -79,7 +79,12 @@ void ACharacterAI::TakeDamage(const int32 Damage, class AActor* _damageCauser)
 void ACharacterAI::SlowCharacter(float _percentageSlow)
 {
 	if (GetCharacterMovement())
+	{
+
+		HelperLibrary::Print(FString::SanitizeFloat(_percentageSlow) + " " + FString::SanitizeFloat(GetCharacterMovement()->MaxWalkSpeed));
 		GetCharacterMovement()->MaxWalkSpeed -= GetCharacterMovement()->MaxWalkSpeed * _percentageSlow;
+
+	}
 }
 
 void ACharacterAI::SpeedUpCharacter(float _percentageSpeedUp)
