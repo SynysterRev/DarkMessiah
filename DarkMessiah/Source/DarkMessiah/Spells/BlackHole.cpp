@@ -29,7 +29,7 @@ ABlackHole::ABlackHole()
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = RootComp;
 	CollisionComp->SetupAttachment(RootComp);
-	TriggerComp->SetupAttachment(RootComp);
+	TriggerComp->SetupAttachment(CollisionComp);
 	SecondRootComponent->SetupAttachment(CollisionComp);
 
 	MeshComponent->SetupAttachment(SecondRootComponent);
@@ -72,17 +72,22 @@ void ABlackHole::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		if (ACharacterAI* charact = Cast<ACharacterAI>(OtherActor))
 		{
-			EnemiesOverlapped.Add(charact);
-			charact->SlowCharacter(PercentageSlow / 100.0f);
-			if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
+			if (!EnemiesOverlapped.Contains(charact))
 			{
-				if (skeletalMesh->GetMaterial(0) != nullptr)
+				HelperLibrary::Print("yeah");
+				EnemiesOverlapped.Add(charact);
+				charact->SlowCharacter(PercentageSlow / 100.0f);
+				if (USkeletalMeshComponent* skeletalMesh = charact->GetMesh())
 				{
-					UPhysicalMaterial* physMat = skeletalMesh->GetMaterial(0)->GetPhysicalMaterial();
-					if (physMat != nullptr && physMat->SurfaceType == SurfaceType1)
+					if (skeletalMesh->GetMaterial(0) != nullptr)
 					{
-						EnemiesMeshesOverlapped.Add(skeletalMesh);
-						TimersAbsorption.Add(1.0f);
+						UPhysicalMaterial* physMat = skeletalMesh->GetMaterial(0)->GetPhysicalMaterial();
+						if (physMat != nullptr && physMat->SurfaceType == SurfaceType1 && !EnemiesMeshesOverlapped.Contains(skeletalMesh))
+						{
+							HelperLibrary::Print(skeletalMesh->GetName());
+							EnemiesMeshesOverlapped.Add(skeletalMesh);
+							TimersAbsorption.Add(1.0f);
+						}
 					}
 				}
 			}
@@ -111,6 +116,7 @@ void ABlackHole::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 					TimersAbsorption.RemoveAt(indexEnemy);
 					EnemiesMeshesOverlapped[indexEnemy]->SetScalarParameterValueOnMaterials("Z value", 1.0f);
 					EnemiesMeshesOverlapped.Remove(skeletalMesh);
+					HelperLibrary::Print("get out");
 				}
 			}
 		}
@@ -171,11 +177,12 @@ void ABlackHole::Tick(float _deltaTime)
 		{
 			if (TimersAbsorption[i] > 0.0f)
 			{
-				TimersAbsorption[i] = FMath::Clamp(TimersAbsorption[i] - _deltaTime * 0.3f, 0.0f, 1.0f);
+				TimersAbsorption[i] = FMath::Clamp(TimersAbsorption[i] - _deltaTime * 0.4f, 0.0f, 1.0f);
 				EnemiesMeshesOverlapped[i]->SetScalarParameterValueOnMaterials("Z value", TimersAbsorption[i]);
 			}
 			else
 			{
+				HelperLibrary::Print("kill");
 				EnemiesOverlapped[i]->InstaKill();
 			}
 		}

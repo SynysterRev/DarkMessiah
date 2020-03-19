@@ -22,7 +22,7 @@ AFireBall::AFireBall()
 	ProjectileMovement->MaxSpeed = MaxSpeed;
 	CurrentScale = GetActorScale3D();
 	CurrentLocation = GetActorLocation();
-	PowerMultiplicator = 1.0f;
+	PowerMultiplicator = 0.5f;
 	CurrentPowerMultiplicator = PowerMultiplicator;
 	RootComponent = CollisionComp;
 }
@@ -39,6 +39,7 @@ void AFireBall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
 
+			RadiusExplosion *= CurrentPowerMultiplicator;
 			if (UKismetSystemLibrary::SphereOverlapActors(world, Hit.ImpactPoint, RadiusExplosion, ObjectTypes, NULL, ActorsToIgnore, OutActors))
 			{
 				for (AActor* actor : OutActors)
@@ -48,7 +49,7 @@ void AFireBall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 					{
 						if (Caster)
 						{
-							charact->TakeDamage(Damage, this);
+							charact->TakeDamage(Damage * CurrentPowerMultiplicator, this);
 						}
 					}
 					UPrimitiveComponent* primitive = Cast<UPrimitiveComponent>(actor->GetComponentByClass(UPrimitiveComponent::StaticClass()));

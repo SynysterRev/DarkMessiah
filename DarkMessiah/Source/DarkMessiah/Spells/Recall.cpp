@@ -26,6 +26,8 @@ void ARecall::LaunchSpell(FVector _direction)
 		{
 			GravityScale = Caster->GetCharacterMovement()->GravityScale;
 			Caster->GetCharacterMovement()->GravityScale = 0.0f;
+			LastPosition = Caster->GetActorLocation();
+			nextPosition = PreviousPositions[PreviousPositions.Num() - 1].GetLocation();
 		}
 	}
 
@@ -40,6 +42,8 @@ void ARecall::Tick(float _deltaTime)
 		if (PreviousPositions.Num() == 0)
 		{
 			IsSpellCast = false;
+
+			Event_RecallEnd_BP();
 			if (world != nullptr)
 			{
 				world->GetTimerManager().SetTimer(TimerHandlePosition, this, &ARecall::RegisterPosition, TimeBetweenEachPosition, true);
@@ -53,17 +57,19 @@ void ARecall::Tick(float _deltaTime)
 		}
 		else
 		{
-			FVector nextPosition = PreviousPositions[PreviousPositions.Num() - 1].GetLocation();
-			Caster->SetActorLocation(FMath::Lerp(Caster->GetTargetLocation(), nextPosition, Timer));
+			Caster->SetActorLocation(FMath::Lerp(LastPosition, nextPosition, Timer));
 			if (Timer >= 1.0f)
 			{
 				Timer = 0.0f;
+				LastPosition = Caster->GetActorLocation();
 				PreviousPositions.RemoveAt(PreviousPositions.Num() - 1);
+				if (PreviousPositions.Num() > 0)
+				{
+					nextPosition = PreviousPositions[PreviousPositions.Num() - 1].GetLocation();
+				}
 			}
 		}
 
-		if (PreviousPositions.Num() == 0)
-			Event_RecallEnd_BP();
 	}
 }
 
